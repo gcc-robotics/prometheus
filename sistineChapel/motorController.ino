@@ -12,12 +12,14 @@ void setPwm(int motorNum, float dutyCycle)
   
   pwm.setPWM(pin + 2, 0, int(rate));
 }
+
 /*
 int getPwm(int motorNum)
 {
   Serial.
 }
 */
+
 //INPUT PARAMETERS : (integer) Motor Number Identifier
 // On Call Motor is set to move Forward.
 void forward(int motorNum)
