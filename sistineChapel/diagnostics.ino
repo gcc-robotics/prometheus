@@ -2,6 +2,7 @@ int debugInputValue;
 int debugMotorNumber;
 int debugDutyCycle;
 int debugState;
+
 /* debugState values
 0 = select state
 1 = Waiting for motor number
