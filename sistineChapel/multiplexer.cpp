@@ -1,7 +1,7 @@
 #import <Arduino.h>
 #include "multiplexer.h"
 
-// Function to call in the 
+// Function to call in the arduino setup function
 Multiplexer::Multiplexer()
 {
 	// Digital pins that control the analog mux
