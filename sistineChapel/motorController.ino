@@ -1,7 +1,3 @@
-#include <Adafruit_PWMServoDriver.h>
-
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
 //Sets the PWM duty cycle for the desired motor
 void setPwm(int motorNum, float dutyCycle)
 {

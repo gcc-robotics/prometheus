@@ -1,12 +1,16 @@
 int debugInputValue;
 int debugMotorNumber;
 int debugDutyCycle;
+int debugMuxValue;
+unsigned long debugTime;
 int debugState;
 
 /* debugState values
 0 = select state
 1 = Waiting for motor number
 2 = Waiting for duty cycle
+3 = Waiting for mux input number
+4 = Displaying encoder angle on mux input 0 (0 indexed)
 */
 
 // Initilize debug variables
@@ -32,11 +36,16 @@ void diagnosticLoop()
       {
         debugState = 1;
       }
+      else if(debugInputValue == 3)
+      {
+        debugState = 3;
+      }
       else
       {
-        Serial.println("Input 1 to show the status of the digital input, 2 to set Motor PWM.");
+        Serial.println("Input 1 to show the status of the digital input, 2 to set Motor PWM, 3 to select mux input.");
       }
       break;
+
     case 1:
       Serial.println("Input Motor Number between 1 and 5");
       debugInputValue = Serial.parseInt();
@@ -67,6 +76,39 @@ void diagnosticLoop()
         Serial.println("%");
         
         debugState = 0;
+      }
+      break;
+
+    case 3:
+      Serial.println("Input mux input number between 1 and 16, 17 for encoder angle on input 1 for 30 seconds:");
+      debugInputValue = Serial.parseInt();
+      
+      if(debugInputValue == 17)
+      {
+        debugState = 4;
+        debugTime = millis();
+      }
+      else if(debugInputValue != 0)
+      {
+        debugMuxValue = mux.readInput(debugInputValue - 1);
+        
+        Serial.print("Set mux to input");
+        Serial.println(debugInputValue);
+        Serial.print("Current mux input value: ");
+        Serial.println(debugMuxValue);
+        
+        debugState = 0;
+      }
+      break;
+    
+    case 4:
+      debugMuxValue = mux.readInput(0);
+      Serial.print("Current angle: ");
+      Serial.println(analogSignalToAngle(debugMuxValue));
+      
+      if((millis() - debugTime) > (30 * 1000))
+      {
+          debugState = 0;
       }
       break;
   }
