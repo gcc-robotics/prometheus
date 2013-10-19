@@ -1,3 +1,6 @@
+#ifndef MULTIPLEXER_H
+#define MULTIPLEXER_H
+
 class Multiplexer 
 {
 	private:
@@ -26,3 +29,5 @@ class Multiplexer
 		// Reads a specific input from the mux
 		int readInput(int inputNumber);
 };
+
+#endif
