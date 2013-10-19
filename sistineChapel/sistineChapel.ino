@@ -42,9 +42,3 @@ void loop()
     debug.loop();
   }
 }
-
-// Analog signal to encoder angle
-float analogSignalToAngle(float input)
-{
-  return input / 1023.0 * 360.0;
-}

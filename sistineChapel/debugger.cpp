@@ -99,7 +99,7 @@ void Debugger::readMuxInput(int userInput)
 void Debugger::monitorEncoderAngle(int userInput)
 {
 	// Get the angle from the encoder on mux input 0
-	float angle = analogSignalToAngle(this->mux->readInput(0));
+	float angle = this->mux->readEncoder(0);
 
 	// Print the angle
 	Serial.print("Current angle: ");

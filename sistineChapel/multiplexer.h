@@ -28,6 +28,9 @@ class Multiplexer
 
 		// Reads a specific input from the mux
 		int readInput(int inputNumber);
+
+		// Read a specific input from the mux and coverts it to an encoder angle
+		float readEncoder(int inputNumber);
 };
 
 #endif

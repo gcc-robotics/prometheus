@@ -67,7 +67,7 @@ void Multiplexer::setInput(int inputNumber)
 }
 
 // Read the provided input from the multiplexer
-// inputNumber = 0-indexed mux input number between 0 and 15
+// inputNumber = mux input number between 0 and 15
 int Multiplexer::readInput(int inputNumber)
 {
 	// Clamp the inputNumber
@@ -78,4 +78,13 @@ int Multiplexer::readInput(int inputNumber)
 
 	// Read the mux input and return
 	return analogRead(this->muxSignalPin);
+}
+
+// Read a specific input from the mux and coverts it to an encoder angle
+// inputNumber = mux input number between 0 and 15
+float Multiplexer::readEncoder(int  inputNumber)
+{
+  int sensorValue = this->readInput(inputNumber);
+
+  return sensorValue / 1023.0 * 360.0;
 }
