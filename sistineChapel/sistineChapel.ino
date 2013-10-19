@@ -1,12 +1,18 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+
 #include "multiplexer.h"
+#include "debugger.h"
 
-Multiplexer mux;
-Adafruit_PWMServoDriver pwm;
+// This isn't the greatest placement
+// We should add a RobotArm class so we can clean this up
+Multiplexer mux = Multiplexer();
+Debugger debug = Debugger(&mux);
 
-// Globals
-boolean debug = true; // While true, serial will display diagnostic information, as well as enable debug commands.
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+// Enable or disable debugger
+boolean runDebugger = true;
 
 void setup() 
 { 
@@ -21,13 +27,19 @@ void setup()
 
   // Set the frequency for the pwm driver
   pwm.setPWMFreq(60);
+
+  // Setup debugger if it is enabled
+  if(runDebugger)
+  {
+    debug = Debugger(&mux);
+  }
 }
 
 void loop() 
 {
-  if(debug)
+  if(runDebugger)
   {
-    diagnosticLoop();
+    debug.loop();
   }
 }
 
