@@ -1,9 +1,14 @@
+#include <Adafruit_PWMServoDriver.h>
+
 #ifndef MOTORCONTROLLER_H
 #define MOTORCONTROLLER_H
 
 class MotorController
 {
-	private:	
+	private:
+		// Pwm object
+		Adafruit_PWMServoDriver pwm;
+
 		//sets the PWM duty cycle for the desired motor
 		void setPwm(int motorNum, float dutyCycle);
 		// On Call Motor is set to move Forward.
@@ -13,7 +18,9 @@ class MotorController
 
 	public:
 		//empty contructor that creates motorController.
-		motorController();
+		MotorController();
+                void setup();
+                
 		//Sets specified motor to specified dutycycle, speed.
 		//motorNumber = 1 to 5
 		//speed = -100 to 100

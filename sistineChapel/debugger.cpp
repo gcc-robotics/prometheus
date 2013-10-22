@@ -3,7 +3,7 @@
 
 // Debugger constructor, call in the arduino setup() function
 // and pass in a pointer to a Multiplexer object
-Debugger::Debugger(Multiplexer* multiplexer)
+Debugger::Debugger(Multiplexer* multiplexer, MotorController* motorController)
 {
 	// Tracking the state of the encoder
 	this->debuggerState = 0;
@@ -13,6 +13,9 @@ Debugger::Debugger(Multiplexer* multiplexer)
 
 	// Set the mux reference
 	this->mux = multiplexer;
+
+	// Set the motorController reference
+	this->motor = motorController;
 }
 
 // Print the values of all the arduino inputs
@@ -45,20 +48,24 @@ void Debugger::getMotorNumber(int userInput)
 // Set the duty cycle for a motor
 void Debugger::setMotorSpeed(int userInput)
 {
-	Serial.println("Input Duty Cycle between 1 and 100, -1 for 0%");
+	Serial.println("Input motor speed between -100 and 100 excluding 0, -999 for stop");
 
 	if(userInput != 0)
 	{
-		// Clamp the duty cycle between 0 and 100
-		if(userInput < 0)
-			userInput = 0;
+		// Clamp the duty cycle between -100 and 100
+		if(userInput < -100)
+			userInput = -100;
 
 		if(userInput > 100)
 			userInput = 100;
 
+		if(userInput == -999)
+		{
+			userInput = 0;
+		}
+
 		// Set the motor to go forward at the provided duty cycle
-		forward(this->debugMotorNumber);
-		setPwm(this->debugMotorNumber, userInput);
+		this->motor->speed(this->debugMotorNumber, userInput);
 
 		// Print a message
 		Serial.print("Setting motor ");
@@ -155,7 +162,7 @@ void Debugger::loop()
 			break;
 
 		case 3:
-			this->monitorEncoderAngle(userInput);
+			this->readMuxInput(userInput);
 			break;
 
 		case 4:

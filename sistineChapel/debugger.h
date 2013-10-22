@@ -1,4 +1,5 @@
 #include "multiplexer.h"
+#include "motorController.h"
 
 #ifndef DEBUGGER_H
 #define DEBUGGER_H
@@ -14,6 +15,9 @@ class Debugger
 
 		// Internal reference to the mux
 		Multiplexer* mux;
+
+		// Internal reference to the motorController
+		MotorController* motor;
 		
 		// -----------------------------------------------
 		// Debugger states -------------------------------
@@ -37,7 +41,7 @@ class Debugger
 	public:
 		// Constructor
 		// multiplexer = a pointer to a Multiplexer object
-		Debugger(Multiplexer* multiplexer);
+		Debugger(Multiplexer* multiplexer, MotorController* motorController);
 
 		// Loop function for the debugger
 		// Call in the arduino loop function
