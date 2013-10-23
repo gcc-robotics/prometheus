@@ -86,5 +86,5 @@ float Multiplexer::readEncoder(int  inputNumber)
 {
   int sensorValue = this->readInput(inputNumber);
 
-  return sensorValue / 1023.0 * 360.0;
+  return (sensorValue / 1023.0 * 360.0) % 360.0;
 }
