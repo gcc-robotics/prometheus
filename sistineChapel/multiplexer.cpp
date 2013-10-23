@@ -1,4 +1,5 @@
 #import <Arduino.h>
+#include <math.h>
 #include "multiplexer.h"
 
 // Function to call in the arduino setup function
@@ -86,5 +87,5 @@ float Multiplexer::readEncoder(int  inputNumber)
 {
   int sensorValue = this->readInput(inputNumber);
 
-  return (sensorValue / 1023.0 * 360.0) % 360.0;
+  return fmod((sensorValue / 1023.0 * 360.0), 360.0);
 }

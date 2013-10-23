@@ -1,4 +1,5 @@
 #import <Arduino.h>
+#include <math.h>
 #include "robotArm.h"
 
 RobotArm::RobotArm()
@@ -30,7 +31,7 @@ MotorController* RobotArm::getMotorController()
 	return &(this->motor);
 }
 
-bool RobotArm::moveMotorToEncoderAngle(int motorNumber, int encoderNumber, float targetAngle)
+bool RobotArm::moveMotorToEncoderAngle(int motorNumber, int encoderNumber, double targetAngle)
 {
 	// Limit target angle between 0 and 360
 	if(targetAngle < 0)
@@ -38,28 +39,28 @@ bool RobotArm::moveMotorToEncoderAngle(int motorNumber, int encoderNumber, float
 		targetAngle = 0;
 	}
 
-	targetAngle %= 360;
+	targetAngle = fmod(targetAngle, 360);
 
 	// Shift target angle to -180 to 180
-	targetAngle -= 180;
+	targetAngle -= 180.0;
 	
 	// Get current angle and shift it to between -180 and 180
-	float currentAngle = this->mux.readEncoder(encoderNumber) - 180;
+	double currentAngle = this->mux.readEncoder(encoderNumber) - 180;
 
 	// Get the smallest angle error
 	// Test the logic at: http://jsfiddle.net/frLFG/3/
-	float angleError = targetAngle - currentAngle;
+	double angleError = targetAngle - currentAngle;
 
 	if(angleError > 180)
 	{
-		angleError -= 360;
+		angleError -= 360.0;
 	}
 	else if(angleError < -180)
 	{
-		angleError += 360;
+		angleError += 360.0;
 	}
 
-	angleError %= 360;
+	angleError = fmod(angleError, 360);
 
 	// Debug
 	Serial.print("Current angle error: ");
@@ -89,14 +90,14 @@ bool RobotArm::moveMotorToEncoderAngle(int motorNumber, int encoderNumber, float
 	}
 }
 
-void RobotArm::elbow(float targetAngle)
+void RobotArm::elbow(double targetAngle)
 {
 	if(targetAngle < 0)
 	{
 		targetAngle = 0;
 	}
 
-	targetAngle %= 360;
+	targetAngle = fmod(targetAngle, 360);
 
 	this->elbowTargetAngle = targetAngle;
 }
