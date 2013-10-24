@@ -7,21 +7,30 @@
 class RobotArm 
 {
 	private:
-		// deadZoneAngle used for deciding how close the joints need to be to 
-		// their target angle to be considered in the correct position
-		double deadZoneAngle;
+		// PID Parameters
+		float previousError[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+		float lastPidTime[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+		float setPoint[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+		float integralTerm[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
 
-		// Elbow parameters
-		int elbowMotorNumber;
-		int elbowEncoderNumber;
-		double elbowTargetAngle;
+		float proprotionalGain[5] = {1.0, 1.0, 0.16, 1.0, 1.0};
+		float integralGain[5] = {0.5, 0.5, 0.01, 0.5, 0.5};
+		float derivativeGain[5] = {0.5, 0.5, 0.02, 0.5, 0.5};
+		
+		// Input/Output numbers
+		int motorNumber[5] = {0, 0, 0, 0, 0};
+		int encoderNumber[5] = {0, 0, 0, 0, 0};
 
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;
 		Multiplexer mux;
 
+		float getAngleError(float targetAngle, float currentAngle);
+		float calculateMotorSpeed(int jointNumber, float angleError);
+
 		// Contains the logic to actually move a joint to the desired angle
-		bool moveMotorToEncoderAngle(int motorNumber, int encoderNumber, double angle);
+		bool moveJointToSetPoint(int jointNumber);
+
 	public:	
 		// Constructor
 		RobotArm();
@@ -32,8 +41,11 @@ class RobotArm
 		// Setup the arm for use
 		void setup();
 
+		// Set joint setPoint
+		void setJointAngle(int jointNumber, float angle);
+
 		// Move the elbow the the provided angle
-		void elbow(double degrees);
+		void elbow(float degrees);
 
 		// Run in arduino loop()
 		void loop();

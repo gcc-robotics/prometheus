@@ -1,21 +1,30 @@
 #include <Arduino.h>
 #include "debugger.h"
 
-// Debugger constructor, call in the arduino setup() function
-// and pass in a pointer to a Multiplexer object
-Debugger::Debugger(Multiplexer* multiplexer, MotorController* motorController)
+// Debugger constructor
+Debugger::Debugger()
+{
+}
+
+// Call in the arduino setup() function
+// and pass in a pointer to a Multiplexer 
+// and MotorController objects
+void Debugger::setup(Multiplexer* multiplexer, MotorController* motorController, RobotArm* robotArm)
 {
 	// Tracking the state of the encoder
 	this->debuggerState = 0;
 
-	// Motor number for setMotorSpeed()
-	this->debugMotorNumber = 0;
+	// debugJointNumber
+	this->debugJointNumber = 0;
 
 	// Set the mux reference
 	this->mux = multiplexer;
 
 	// Set the motorController reference
 	this->motor = motorController;
+
+	// Set the robotArm reference
+	this->arm = robotArm;
 }
 
 // Print the values of all the arduino inputs
@@ -31,14 +40,14 @@ void Debugger::printDigitalInputs(int userInput)
 	}
 }
 
-void Debugger::getMotorNumber(int userInput)
+void Debugger::getJointNumber(int userInput)
 {
-	Serial.println("Input Motor Number between 1 and 5");
+	Serial.println("Input Joint Number between 1 and 5, 3 for elbow, 4 for wrist.");
 
-	if(userInput != 0)
+	if(userInput >= 1 && userInput <= 6)
 	{
 		// Store the motor number
-		this->debugMotorNumber = userInput;
+		this->debugJointNumber = userInput;
 
 		// Move to the next debugger state
 		this->debuggerState = 2;
@@ -46,33 +55,52 @@ void Debugger::getMotorNumber(int userInput)
 }
 
 // Set the duty cycle for a motor
-void Debugger::setMotorSpeed(int userInput)
+void Debugger::setJointAngle(int userInput)
 {
-	Serial.println("Input motor speed between -100 and 100 excluding 0, -999 for stop");
+	Serial.println("Input joint angle in degrees.");
 
 	if(userInput != 0)
 	{
-		// Clamp the duty cycle between -100 and 100
-		if(userInput < -100)
-			userInput = -100;
+		Serial.print("Setting ");
 
-		if(userInput > 100)
-			userInput = 100;
-
-		if(userInput == -999)
+		// Set the selected joint to the provided angle
+		switch(this->debugJointNumber)
 		{
-			userInput = 0;
+			case 1:
+				// User wants to set the base angle
+				Serial.print("[NOT IMPLEMENTED]");
+				break;
+
+			case 2:
+				// User wants to set the shoulder angle
+				Serial.print("[NOT IMPLEMENTED]");
+				break;
+
+			case 3:
+				// User wants to set the elbow angle
+				this->arm->elbow(userInput);
+				Serial.print("elbow");
+				break;
+
+			case 4:
+				// User wants to set the wrist angle
+				Serial.print("[NOT IMPLEMENTED]");
+				break;
+
+			case 5:
+				// User wants to set the hand angle
+				Serial.print("[NOT IMPLEMENTED]");
+				break;
+
+			default:
+				Serial.print("[NOT IMPLEMENTED]");
+				break;
 		}
 
-		// Set the motor to go forward at the provided duty cycle
-		this->motor->speed(this->debugMotorNumber, userInput);
-
-		// Print a message
-		Serial.print("Setting motor ");
-		Serial.print(this->debugMotorNumber);
-		Serial.print(" to Duty Cycle ");
+		// Print the rest of the message
+		Serial.print(" to ");
 		Serial.print(userInput);
-		Serial.println("%");
+		Serial.println(" degrees");
 
 		// Return back to the default state
 		this->debuggerState = 0;
@@ -135,7 +163,7 @@ void Debugger::loop()
 			{
 				this->printDigitalInputs(userInput);
 			}
-			// Check if the user wants to set a motor speed
+			// Check if the user wants to set a joint angle
 			else if(userInput == 2)
 			{
 				this->debuggerState = 1;
@@ -148,17 +176,17 @@ void Debugger::loop()
 			// Print the menu message
 			else
 			{
-				Serial.println("Input 1 to show the status of the digital input, 2 to set Motor PWM, 3 to select mux input.");
+				Serial.println("Input 1 to show the status of the digital input, 2 to set Joint Angle, 3 to select mux input.");
 			}
 			break;
 
 		// State waiting for the user to input a motor number
 		case 1:
-			this->getMotorNumber(userInput);
+			this->getJointNumber(userInput);
 			break;
 
 		case 2:
-			this->setMotorSpeed(userInput);
+			this->setJointAngle(userInput);
 			break;
 
 		case 3:
