@@ -14,6 +14,9 @@ class Debugger
 		// Joint number
 		int debugJointNumber;
 
+		// Potentiometer number
+		int debugPotNumber;
+
 		// Internal reference to the mux
 		Multiplexer* mux;
 
@@ -41,6 +44,12 @@ class Debugger
 
 		// Monitor the encoder on mux input 0
 		void monitorEncoderAngle(int userInput);
+
+		// Monitor a potentiometer value
+		void monitorPotentiometerValue(int userInput);
+
+		// Let the user change the PID gains and monitor the joint
+		void tuneJointPid(int userInput);
 
 	public:
 		// Constructor

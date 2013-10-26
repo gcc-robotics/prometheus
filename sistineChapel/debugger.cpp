@@ -4,6 +4,8 @@
 // Debugger constructor
 Debugger::Debugger()
 {
+	this->debugPotNumber = 6;
+	this->debugJointNumber = 3;
 }
 
 // Call in the arduino setup() function
@@ -110,12 +112,17 @@ void Debugger::setJointAngle(int userInput)
 // Read a mux input
 void Debugger::readMuxInput(int userInput)
 {
-	Serial.println("Input mux input number between 1 and 16, 17 to monitor the encoder angle on mux input C0:");
+	Serial.println("Input mux input number between 1 and 16, 17 to monitor the encoder angle on mux input C0, 18 to monitor a pot.");
 
 	if(userInput == 17)
 	{
 		// Move to the encoder monitoring state
 		this->debuggerState = 4;
+	}
+	else if(userInput == 18)
+	{
+		// Move to the encoder monitoring state
+		this->debuggerState = 5;
 	}
 	else if(userInput != 0)
 	{
@@ -141,7 +148,75 @@ void Debugger::monitorEncoderAngle(int userInput)
 	Serial.println(angle);
 
 	// Check if the user wants to stop the monitoring
-	if(userInput == 1)
+	if(userInput == -1)
+	{
+		// Return back to the default state
+		this->debuggerState = 0;
+	}
+}
+
+// Monitor a potentiometer value
+void Debugger::monitorPotentiometerValue(int userInput)
+{
+	// Get the value of the pot on mux input 6
+	float potValue = this->mux->readPotentiometer(this->debugPotNumber);
+
+	// Print the potValue
+	Serial.print("-1 to stop, 6, 7, 8 to select pot, Pot ");
+	Serial.print(this->debugPotNumber);
+	Serial.print(" value: ");
+	Serial.println(potValue);
+
+	if(userInput == 6 || userInput == 7 || userInput == 8)
+	{
+		// User wants to change pot number
+		this->debugPotNumber = userInput;
+	}
+	// The user wants to stop the monitoring
+	else if(userInput == -1)
+	{
+		// Return back to the default state
+		this->debuggerState = 0;
+	}
+}
+
+// Let the user change the PID gains and monitor the joint
+void Debugger::tuneJointPid(int userInput)
+{
+	// Get the values of the pots
+	float PGain = this->mux->readPotentiometer(6);
+	float IGain = this->mux->readPotentiometer(7);
+	float DGain = this->mux->readPotentiometer(8);
+
+	// Print the potValue
+	Serial.print("-1 to stop, 1 through 5 to select joint, Button on board to set the gains, Joint: ");
+	Serial.print(this->debugJointNumber);
+	Serial.print(" P: ");
+	Serial.print(PGain);
+	Serial.print(" I: ");
+	Serial.print(IGain);
+	Serial.print(" D: ");
+	Serial.print(DGain);
+	Serial.print(" Error: ");
+	Serial.println(this->arm->getLastError(this->debugJointNumber));
+
+	// Check if the button is pressed
+	if(digitalRead(10) == HIGH)
+	{
+		// Set the gains for the current joint
+		this->arm->setPidGains(this->debugJointNumber, PGain, IGain, DGain);
+		Serial.print("Setting PID gains for joint ");
+		Serial.print(this->debugJointNumber);
+		Serial.println(".");
+	}
+
+	if(userInput >= 1 && userInput <= 5)
+	{
+		// User wants to change joint number
+		this->debugJointNumber = userInput;
+	}
+	// The user wants to stop the monitoring
+	else if(userInput == -1)
 	{
 		// Return back to the default state
 		this->debuggerState = 0;
@@ -156,7 +231,33 @@ void Debugger::loop()
 
 	switch(this->debuggerState)
 	{
+		// State waiting for the user to input a motor number
+		case 1:
+			this->getJointNumber(userInput);
+			break;
+
+		case 2:
+			this->setJointAngle(userInput);
+			break;
+
+		case 3:
+			this->readMuxInput(userInput);
+			break;
+
+		case 4:
+			this->monitorEncoderAngle(userInput);
+			break;
+
+		case 5:
+			this->monitorPotentiometerValue(userInput);
+			break;
+
+		case 6:
+			this->tuneJointPid(userInput);
+			break;
+
 		// The default debugger state
+		default:
 		case 0:
 			// Check if the user wants to print out the digital inputs
 			if(userInput == 1)
@@ -173,28 +274,16 @@ void Debugger::loop()
 			{
 				this->debuggerState = 3;
 			}
+			// Check if the user wants to tune PIDs
+			else if(userInput == 4)
+			{
+				this->debuggerState = 6;
+			}
 			// Print the menu message
 			else
 			{
-				Serial.println("Input 1 to show the status of the digital input, 2 to set Joint Angle, 3 to select mux input.");
+				Serial.println("Input 1 to show the status of the digital input, 2 to set Joint Angle, 3 to select mux input, 4 for PID tunning.");
 			}
-			break;
-
-		// State waiting for the user to input a motor number
-		case 1:
-			this->getJointNumber(userInput);
-			break;
-
-		case 2:
-			this->setJointAngle(userInput);
-			break;
-
-		case 3:
-			this->readMuxInput(userInput);
-			break;
-
-		case 4:
-			this->monitorEncoderAngle(userInput);
 			break;
 	}
 }

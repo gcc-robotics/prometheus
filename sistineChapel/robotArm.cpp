@@ -24,6 +24,46 @@ MotorController* RobotArm::getMotorController()
 	return &(this->motor);
 }
 
+// Get the last angle error for the joint
+float RobotArm::getLastError(int jointNumber)
+{
+	if(jointNumber < 0 || jointNumber > 5)
+	{
+		return 0.0;
+	}
+
+	return this->previousError[jointNumber];
+}
+
+float RobotArm::clampGain(float gain, float minGain, float maxGain)
+{
+	if(gain < minGain)
+	{
+		gain = minGain;
+	}
+
+	if(gain > maxGain)
+	{
+		gain = maxGain;
+	}
+
+	return gain;
+}
+
+// Set the PID Gains for the joint
+void RobotArm::setPidGains(int jointNumber, float PGain, float IGain, float DGain)
+{
+	// Clamp the gains
+	PGain = this->clampGain(PGain);
+	IGain = this->clampGain(IGain);
+	DGain = this->clampGain(DGain);
+
+	// Set the gains
+	this->proprotionalGain[jointNumber] = PGain;
+	this->integralGain[jointNumber] = IGain;
+	this->derivativeGain[jointNumber] = DGain;
+}
+
 float RobotArm::getAngleError(float targetAngle, float currentAngle)
 {
 	// Limit target angle between 0 and 360
@@ -69,15 +109,15 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 	// Calculate the Proportional Term
 	float proportionalTerm = abs(angleError) * this->proprotionalGain[jointNumber];
 
-	Serial.print(" PTerm: ");
-	Serial.print(proportionalTerm);
+	//Serial.print(" PTerm: ");
+	//Serial.print(proportionalTerm);
 
 	// Get the time interval
 	int timeNow = millis();
 	float timeDifference = (timeNow - this->lastPidTime[jointNumber]) / 1000.0;
 
-	Serial.print(" timeDifference: ");
-	Serial.print(timeDifference);
+	//Serial.print(" timeDifference: ");
+	//Serial.print(timeDifference);
 
 	// Store the current time as previous
 	this->lastPidTime[jointNumber] = timeNow;
@@ -90,14 +130,14 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 		this->integralTerm[jointNumber] = 0;
 	}
 
-	Serial.print(" integralTerm: ");
-	Serial.print(this->integralTerm[jointNumber]);
+	//Serial.print(" integralTerm: ");
+	//Serial.print(this->integralTerm[jointNumber]);
 
 	// Calculate the Derivate Term
 	float derivativeTerm = (abs(this->previousError[jointNumber]) - abs(angleError)) * (this->derivativeGain[jointNumber]) / timeDifference;
 
-	Serial.print(" derivativeTerm: ");
-	Serial.print(derivativeTerm);
+	//Serial.print(" derivativeTerm: ");
+	//Serial.print(derivativeTerm);
 
 	// Store current angle error as previous angle error
 	this->previousError[jointNumber] = angleError;
@@ -113,8 +153,8 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 		motorSpeed = 0;
 	}
 
-	Serial.print(" motorSpeed: ");
-	Serial.println(motorSpeed);
+	//Serial.print(" motorSpeed: ");
+	//Serial.println(motorSpeed);
 
 	return motorSpeed;
 }
@@ -127,8 +167,8 @@ bool RobotArm::moveJointToSetPoint(int jointNumber)
 	// Get the angle error
 	float angleError = this->getAngleError(this->setPoint[jointNumber], currentAngle);
 
-	Serial.print("Angle Error: ");
-	Serial.print(angleError);
+	//Serial.print("Angle Error: ");
+	//Serial.print(angleError);
 
 	// Get the motor speed
 	int motorSpeed = this->calculateMotorSpeed(jointNumber, angleError);

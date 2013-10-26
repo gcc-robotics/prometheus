@@ -31,6 +31,10 @@ class Multiplexer
 
 		// Read a specific input from the mux and coverts it to an encoder angle
 		float readEncoder(int inputNumber);
+
+		// Read the selected mux input as a pot
+		// Return float between 0 and 1
+		float readPotentiometer(int inputNumber);
 };
 
 #endif

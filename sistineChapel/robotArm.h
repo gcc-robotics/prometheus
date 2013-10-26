@@ -31,6 +31,9 @@ class RobotArm
 		// Contains the logic to actually move a joint to the desired angle
 		bool moveJointToSetPoint(int jointNumber);
 
+		// Clamps the gain between minGain and maxGain
+		float clampGain(float gain, float minGain = 0.0, float maxGain = 1.0);
+
 	public:	
 		// Constructor
 		RobotArm();
@@ -40,6 +43,12 @@ class RobotArm
 
 		// Setup the arm for use
 		void setup();
+
+		// Get the last angle error for the joint
+		float getLastError(int jointNumber);
+
+		// Set the PID Gains for the joint
+		void setPidGains(int jointNumber, float PGain, float IGain, float DGain);
 
 		// Set joint setPoint
 		void setJointAngle(int jointNumber, float angle);

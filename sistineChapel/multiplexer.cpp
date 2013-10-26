@@ -85,7 +85,29 @@ int Multiplexer::readInput(int inputNumber)
 // inputNumber = mux input number between 0 and 15
 float Multiplexer::readEncoder(int  inputNumber)
 {
-  int sensorValue = this->readInput(inputNumber);
+	int sensorValue = this->readInput(inputNumber);
 
-  return fmod((sensorValue / 1023.0 * 360.0), 360.0);
+	return fmod((sensorValue / 1023.0 * 360.0), 360.0);
+}
+
+// Read the selected mux input as a pot
+// Return float between 0 and 1
+float Multiplexer::readPotentiometer(int inputNumber)
+{
+	int sensorValue = this->readInput(inputNumber);
+	int deadZone = 95;
+
+	float potValue = (sensorValue - deadZone) / (1023.0 - deadZone);
+
+	if(potValue < 0)
+	{
+		potValue = 0;
+	}
+
+	if(potValue > 1)
+	{
+		potValue = 1;
+	}
+
+	return potValue;
 }
