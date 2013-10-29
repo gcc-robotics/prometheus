@@ -1,11 +1,13 @@
 #include <Arduino.h>
 #include "debugger.h"
+#include <math.h>
 
 // Debugger constructor
 Debugger::Debugger()
 {
 	this->debugPotNumber = 6;
 	this->debugJointNumber = 3;
+	this->debugAngle = 0.0;
 }
 
 // Call in the arduino setup() function
@@ -189,7 +191,7 @@ void Debugger::tuneJointPid(int userInput)
 	float DGain = this->mux->readPotentiometer(8);
 
 	// Print the potValue
-	Serial.print("-1 to stop, 1 through 5 to select joint, Button on board to set the gains, Joint: ");
+	Serial.print("-1 to stop, 1 through 5 to select joint, 6 for random angle, Button on board to set the gains, Joint: ");
 	Serial.print(this->debugJointNumber);
 	Serial.print(" P: ");
 	Serial.print(PGain);
@@ -198,13 +200,13 @@ void Debugger::tuneJointPid(int userInput)
 	Serial.print(" D: ");
 	Serial.print(DGain);
 	Serial.print(" Error: ");
-	Serial.println(this->arm->getLastError(this->debugJointNumber));
+	Serial.println(this->arm->getLastError(this->debugJointNumber - 1));
 
 	// Check if the button is pressed
 	if(digitalRead(10) == HIGH)
 	{
 		// Set the gains for the current joint
-		this->arm->setPidGains(this->debugJointNumber, PGain, IGain, DGain);
+		this->arm->setPidGains(this->debugJointNumber - 1, PGain, IGain, DGain);
 		Serial.print("Setting PID gains for joint ");
 		Serial.print(this->debugJointNumber);
 		Serial.println(".");
@@ -214,6 +216,12 @@ void Debugger::tuneJointPid(int userInput)
 	{
 		// User wants to change joint number
 		this->debugJointNumber = userInput;
+	}
+	else if(userInput == 6)
+	{
+		this->debugAngle = fmod(this->debugAngle + 180, 361);
+
+		this->arm->setJointAngle(this->debugJointNumber - 1, this->debugAngle);
 	}
 	// The user wants to stop the monitoring
 	else if(userInput == -1)

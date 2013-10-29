@@ -17,6 +17,9 @@ class Debugger
 		// Potentiometer number
 		int debugPotNumber;
 
+		// The joint test angle
+		float debugAngle;
+
 		// Internal reference to the mux
 		Multiplexer* mux;
 

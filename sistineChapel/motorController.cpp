@@ -9,7 +9,7 @@ MotorController::MotorController()
 
 void MotorController::setup()
 {
-        this->pwm.begin();
+	this->pwm.begin();
 
 	// Set the frequency for the pwm driver
 	this->pwm.setPWMFreq(60);
@@ -40,7 +40,7 @@ void MotorController::setPwm(int motorNum, float dutyCycle)
 void MotorController::forward(int motorNum)
 {
 	int pin = 3 * motorNum;	//selects the first pin on the pwm driver
-    
+
 	this->pwm.setPWM(pin, 4095, 0);	//Sets the INA pin of the motor to LOW
 	this->pwm.setPWM(pin + 1, 0, 4095);	//Sets the INB pin of the motor to High
 }
@@ -48,7 +48,7 @@ void MotorController::forward(int motorNum)
 void MotorController::reverse(int motorNum)
 {
 	int pin = 3 * motorNum;	//selects the first pin on the pwm driver
-  
+
 	this->pwm.setPWM(pin, 0, 4095);	//Sets the INA pin of the motor to HIGH
 	this->pwm.setPWM(pin + 1, 4095, 0);	//Sets the INB pin of the motor to LOW
 }
@@ -76,7 +76,7 @@ void MotorController::speed(int motorNumber, int speed)
 void MotorController::coast(int motorNumber)
 {
 	int pin = 3 * motorNumber; //selects the first pin on the pwm driver
-  
+
 	this->pwm.setPWM(pin, 4095, 0); //Sets the INA pin of the motor to Low
 	this->pwm.setPWM(pin + 1, 4095, 0); //Sets the INB pin of the motor to Low
 }
@@ -84,7 +84,7 @@ void MotorController::coast(int motorNumber)
 void MotorController::brake(int motorNum)
 {
 	int pin = 3 * motorNum;	//selects the first pin on the pwm driver
-  
+	
 	this->pwm.setPWM(pin, 0, 4095);	//Sets the INA pin of the motor to High
 	this->pwm.setPWM(pin + 1, 0, 4095);	//Sets the INB pin of the motor to High
-} 
+}

@@ -8,6 +8,65 @@ RobotArm::RobotArm()
 
 void RobotArm::setup()
 {
+	// PID Parameters
+	const int numMotors = 5;
+
+	// Previous error
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->previousError[i] = 0.0;
+	}
+
+	// lastPidTime
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->lastPidTime[i] = 0.0;
+	}
+	
+	// setPoint
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->setPoint[i] = 0.0;
+	}
+
+	// integralTerm
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->integralTerm[i] = 0.0;
+	}
+
+	// proprotionalGain
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->proprotionalGain[i] = 0.5;
+	}
+
+	// integralGain
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->integralGain[i] = 0.0;
+	}
+
+	// derivativeGain
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->derivativeGain[i] = 0.0;
+	}
+	
+	// Motor numbers
+	this->motorNumber[0] = 0;
+	this->motorNumber[1] = 0;
+	this->motorNumber[2] = 0;
+	this->motorNumber[3] = 0;
+	this->motorNumber[4] = 0;
+
+	// Encoder numbers
+	this->encoderNumber[0] = 0;
+	this->encoderNumber[1] = 0;
+	this->encoderNumber[2] = 0;
+	this->encoderNumber[3] = 0;
+	this->encoderNumber[4] = 0;
+
 	this->mux = Multiplexer();
 	this->motor = MotorController();
 
@@ -27,36 +86,58 @@ MotorController* RobotArm::getMotorController()
 // Get the last angle error for the joint
 float RobotArm::getLastError(int jointNumber)
 {
-	if(jointNumber < 0 || jointNumber > 5)
-	{
-		return 0.0;
-	}
+	jointNumber = this->clamp(jointNumber, 0, 4);
 
 	return this->previousError[jointNumber];
 }
 
-float RobotArm::clampGain(float gain, float minGain, float maxGain)
+// Get the last pid time for the joint
+int RobotArm::getLastPidTime(int jointNumber)
 {
-	if(gain < minGain)
+	jointNumber = this->clamp(jointNumber, 0, 4);
+
+	return this->lastPidTime[jointNumber];
+}
+
+// Clamps the input between min and max
+float RobotArm::clamp(float input, float min, float max)
+{
+	if(input < min)
 	{
-		gain = minGain;
+		input = min;
 	}
 
-	if(gain > maxGain)
+	if(input > max)
 	{
-		gain = maxGain;
+		input = max;
 	}
 
-	return gain;
+	return input;
+}
+
+// Clamps the input between min and max
+int RobotArm::clamp(int input, int min, int max)
+{
+	if(input < min)
+	{
+		input = min;
+	}
+
+	if(input > max)
+	{
+		input = max;
+	}
+
+	return input;
 }
 
 // Set the PID Gains for the joint
 void RobotArm::setPidGains(int jointNumber, float PGain, float IGain, float DGain)
 {
 	// Clamp the gains
-	PGain = this->clampGain(PGain);
-	IGain = this->clampGain(IGain);
-	DGain = this->clampGain(DGain);
+	PGain = this->clamp(PGain);
+	IGain = this->clamp(IGain);
+	DGain = this->clamp(DGain);
 
 	// Set the gains
 	this->proprotionalGain[jointNumber] = PGain;
@@ -106,6 +187,12 @@ float RobotArm::getAngleError(float targetAngle, float currentAngle)
 
 float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 {
+	//Serial.print("Joint number: ");
+	//Serial.print(jointNumber);
+
+	//Serial.print(" setPoint: ");
+	//Serial.print(this->setPoint[jointNumber]);
+
 	// Calculate the Proportional Term
 	float proportionalTerm = abs(angleError) * this->proprotionalGain[jointNumber];
 
@@ -125,6 +212,7 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 	// Calculate the Integral Term
 	this->integralTerm[jointNumber] += timeDifference * abs(angleError) * this->integralGain[jointNumber];
 
+	// Zero out the integralTerm when the angle error is small
 	if(angleError < 0.5)
 	{
 		this->integralTerm[jointNumber] = 0;
@@ -134,13 +222,16 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 	//Serial.print(this->integralTerm[jointNumber]);
 
 	// Calculate the Derivate Term
-	float derivativeTerm = (abs(this->previousError[jointNumber]) - abs(angleError)) * (this->derivativeGain[jointNumber]) / timeDifference;
+	float derivativeTerm = (abs(this->previousError[jointNumber]) - abs(angleError)) * this->derivativeGain[jointNumber] / timeDifference;
 
 	//Serial.print(" derivativeTerm: ");
 	//Serial.print(derivativeTerm);
 
 	// Store current angle error as previous angle error
 	this->previousError[jointNumber] = angleError;
+
+	//Serial.print(" previousError: ");
+	//Serial.print(this->getLastError(jointNumber));
 
 	float motorSpeed = proportionalTerm + this->integralTerm[jointNumber] + derivativeTerm;
 
@@ -154,7 +245,7 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 	}
 
 	//Serial.print(" motorSpeed: ");
-	//Serial.println(motorSpeed);
+	//Serial.print(motorSpeed);
 
 	return motorSpeed;
 }
@@ -172,6 +263,9 @@ bool RobotArm::moveJointToSetPoint(int jointNumber)
 
 	// Get the motor speed
 	int motorSpeed = this->calculateMotorSpeed(jointNumber, angleError);
+
+	//Serial.print(" currentAngle: ");
+	//Serial.println(currentAngle);
 
 	// Move in the right direction
 	if(angleError > 0)

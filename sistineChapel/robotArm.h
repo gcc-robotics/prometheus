@@ -8,18 +8,18 @@ class RobotArm
 {
 	private:
 		// PID Parameters
-		float previousError[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-		float lastPidTime[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-		float setPoint[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-		float integralTerm[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+		float previousError[5];
+		float lastPidTime[5];
+		float setPoint[5];
+		float integralTerm[5];
 
-		float proprotionalGain[5] = {1.0, 1.0, 0.16, 1.0, 1.0};
-		float integralGain[5] = {0.5, 0.5, 0.01, 0.5, 0.5};
-		float derivativeGain[5] = {0.5, 0.5, 0.02, 0.5, 0.5};
+		float proprotionalGain[5];
+		float integralGain[5];
+		float derivativeGain[5];
 		
 		// Input/Output numbers
-		int motorNumber[5] = {0, 0, 0, 0, 0};
-		int encoderNumber[5] = {0, 0, 0, 0, 0};
+		int motorNumber[5];
+		int encoderNumber[5];
 
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;
@@ -31,8 +31,9 @@ class RobotArm
 		// Contains the logic to actually move a joint to the desired angle
 		bool moveJointToSetPoint(int jointNumber);
 
-		// Clamps the gain between minGain and maxGain
-		float clampGain(float gain, float minGain = 0.0, float maxGain = 1.0);
+		// Clamps the input between min and max
+		float clamp(float input, float min = 0.0, float max = 1.0);
+		int clamp(int input, int min = 0, int max = 4);
 
 	public:	
 		// Constructor
@@ -43,6 +44,9 @@ class RobotArm
 
 		// Setup the arm for use
 		void setup();
+
+		// Get the last pid time for the joint
+		int getLastPidTime(int inputNumber);
 
 		// Get the last angle error for the joint
 		float getLastError(int jointNumber);
