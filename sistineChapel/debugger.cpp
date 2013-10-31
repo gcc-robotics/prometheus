@@ -5,7 +5,7 @@
 // Debugger constructor
 Debugger::Debugger()
 {
-	this->debugPotNumber = 6;
+	this->debugInputNumber = 6;
 	this->debugJointNumber = 3;
 	this->debugAngle = 0.0;
 }
@@ -71,13 +71,15 @@ void Debugger::setJointAngle(int userInput)
 		switch(this->debugJointNumber)
 		{
 			case 1:
-				// User wants to set the base angle
-				Serial.print("[NOT IMPLEMENTED]");
+				// User wants to set the waist angle
+				this->arm->waist(userInput);
+				Serial.print("waist");
 				break;
 
 			case 2:
 				// User wants to set the shoulder angle
-				Serial.print("[NOT IMPLEMENTED]");
+				this->arm->shoulder(userInput);
+				Serial.print("shoulder");
 				break;
 
 			case 3:
@@ -88,12 +90,14 @@ void Debugger::setJointAngle(int userInput)
 
 			case 4:
 				// User wants to set the wrist angle
-				Serial.print("[NOT IMPLEMENTED]");
+				this->arm->wrist(userInput);
+				Serial.print("wrist");
 				break;
 
 			case 5:
 				// User wants to set the hand angle
-				Serial.print("[NOT IMPLEMENTED]");
+				this->arm->hand(userInput);
+				Serial.print("hand");
 				break;
 
 			default:
@@ -143,14 +147,18 @@ void Debugger::readMuxInput(int userInput)
 void Debugger::monitorEncoderAngle(int userInput)
 {
 	// Get the angle from the encoder on mux input 0
-	float angle = this->mux->readEncoder(0);
+	float angle = this->mux->readEncoder(this->debugInputNumber);
 
 	// Print the angle
-	Serial.print("Current angle: ");
+	Serial.print("-1 to stop, 1 to 16 to select input, Current angle: ");
 	Serial.println(angle);
 
+	if(userInput > 0 && userInput <= 16)
+	{
+		this->debugInputNumber = userInput - 1;
+	}
 	// Check if the user wants to stop the monitoring
-	if(userInput == -1)
+	else if(userInput == -1)
 	{
 		// Return back to the default state
 		this->debuggerState = 0;
@@ -161,18 +169,18 @@ void Debugger::monitorEncoderAngle(int userInput)
 void Debugger::monitorPotentiometerValue(int userInput)
 {
 	// Get the value of the pot on mux input 6
-	float potValue = this->mux->readPotentiometer(this->debugPotNumber);
+	float potValue = this->mux->readPotentiometer(this->debugInputNumber);
 
 	// Print the potValue
 	Serial.print("-1 to stop, 6, 7, 8 to select pot, Pot ");
-	Serial.print(this->debugPotNumber);
+	Serial.print(this->debugInputNumber);
 	Serial.print(" value: ");
 	Serial.println(potValue);
 
 	if(userInput == 6 || userInput == 7 || userInput == 8)
 	{
 		// User wants to change pot number
-		this->debugPotNumber = userInput;
+		this->debugInputNumber = userInput;
 	}
 	// The user wants to stop the monitoring
 	else if(userInput == -1)

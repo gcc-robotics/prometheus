@@ -4,6 +4,13 @@
 
 RobotArm::RobotArm()
 {
+	/*	Joint numbers:
+		0: waist
+		1: shoulder
+		2: elbow
+		3: wrist
+		4: hand
+	*/
 }
 
 void RobotArm::setup()
@@ -27,6 +34,7 @@ void RobotArm::setup()
 	for(int i = 0; i < numMotors; i++)
 	{
 		this->setPoint[i] = 0.0;
+		this->setJointAngle(i, 0);
 	}
 
 	// integralTerm
@@ -38,7 +46,7 @@ void RobotArm::setup()
 	// proprotionalGain
 	for(int i = 0; i < numMotors; i++)
 	{
-		this->proprotionalGain[i] = 0.5;
+		this->proprotionalGain[i] = 0.75;
 	}
 
 	// integralGain
@@ -57,13 +65,13 @@ void RobotArm::setup()
 	this->motorNumber[0] = 0;
 	this->motorNumber[1] = 0;
 	this->motorNumber[2] = 0;
-	this->motorNumber[3] = 0;
+	this->motorNumber[3] = 4;
 	this->motorNumber[4] = 0;
 
 	// Encoder numbers
 	this->encoderNumber[0] = 0;
 	this->encoderNumber[1] = 0;
-	this->encoderNumber[2] = 0;
+	this->encoderNumber[2] = 1;
 	this->encoderNumber[3] = 0;
 	this->encoderNumber[4] = 0;
 
@@ -290,9 +298,39 @@ void RobotArm::setJointAngle(int jointNumber, float angle)
 		angle = 0;
 	}
 
+	// Per joint angle limits
+	switch(jointNumber)
+	{
+		// Elbow angle limits
+		case 2:
+			if(angle < 121)
+			{
+				angle = 121;
+			}
+			else if(angle > 221)
+			{
+				angle = 221;
+			}
+			break;
+
+		default:
+			// Do nothing
+			break;
+	}
+
 	angle = fmod(angle, 360);
 
 	this->setPoint[jointNumber] = angle;
+}
+
+void RobotArm::waist(float targetAngle)
+{
+	this->setJointAngle(0, targetAngle);
+}
+
+void RobotArm::shoulder(float targetAngle)
+{
+	this->setJointAngle(1, targetAngle);
 }
 
 void RobotArm::elbow(float targetAngle)
@@ -300,7 +338,21 @@ void RobotArm::elbow(float targetAngle)
 	this->setJointAngle(2, targetAngle);
 }
 
+void RobotArm::wrist(float targetAngle)
+{
+	this->setJointAngle(3, targetAngle);
+}
+
+void RobotArm::hand(float targetAngle)
+{
+	this->setJointAngle(4, targetAngle);
+}
+
 void RobotArm::loop()
 {
+	// Elbow
 	this->moveJointToSetPoint(2);
+
+	// Wrist
+	this->moveJointToSetPoint(3);
 }

@@ -14,8 +14,8 @@ class Debugger
 		// Joint number
 		int debugJointNumber;
 
-		// Potentiometer number
-		int debugPotNumber;
+		// debugInputNumber
+		int debugInputNumber;
 
 		// The joint test angle
 		float debugAngle;

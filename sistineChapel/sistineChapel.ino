@@ -25,8 +25,8 @@ void setup()
 	debug.setup(arm.getMultiplexer(), arm.getMotorController(), &arm);
 
 	// Set a random setPoint for the elbow
-	randomSeed(analogRead(A3));
-	arm.elbow(random(0, 361));
+	//randomSeed(analogRead(A3));
+	//arm.elbow(random(0, 361));
 }
 
 void loop() 

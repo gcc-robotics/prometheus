@@ -57,8 +57,20 @@ class RobotArm
 		// Set joint setPoint
 		void setJointAngle(int jointNumber, float angle);
 
+		// Move the waist the the provided angle
+		void waist(float degrees);
+
+		// Move the shoulder the the provided angle
+		void shoulder(float degrees);
+
 		// Move the elbow the the provided angle
 		void elbow(float degrees);
+
+		// Move the wrist the the provided angle
+		void wrist(float degrees);
+
+		// Move the hand the the provided angle
+		void hand(float degrees);
 
 		// Run in arduino loop()
 		void loop();
