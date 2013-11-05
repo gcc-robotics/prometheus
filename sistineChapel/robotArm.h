@@ -16,6 +16,12 @@ class RobotArm
 		float proprotionalGain[5];
 		float integralGain[5];
 		float derivativeGain[5];
+
+		// Boost parameters
+		int lastBoostTime[5];
+		int jointBoostThreshold[5];
+		int lastMotorSpeed[5];
+		int boostLength;
 		
 		// Input/Output numbers
 		int motorNumber[5];
@@ -50,6 +56,10 @@ class RobotArm
 
 		// Get the last angle error for the joint
 		float getLastError(int jointNumber);
+
+		// Set the motor speed for the provided joint and 
+		// do speed boosts for speeds below the boost threshold
+		void setJointMotorSpeed(int jointNumber, int speed);
 
 		// Set the PID Gains for the joint
 		void setPidGains(int jointNumber, float PGain, float IGain, float DGain);

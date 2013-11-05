@@ -64,8 +64,8 @@ void RobotArm::setup()
 	// Motor numbers
 	this->motorNumber[0] = 0;
 	this->motorNumber[1] = 0;
-	this->motorNumber[2] = 0;
-	this->motorNumber[3] = 4;
+	this->motorNumber[2] = 4;
+	this->motorNumber[3] = 0;
 	this->motorNumber[4] = 0;
 
 	// Encoder numbers
@@ -74,6 +74,28 @@ void RobotArm::setup()
 	this->encoderNumber[2] = 1;
 	this->encoderNumber[3] = 0;
 	this->encoderNumber[4] = 0;
+
+	// Boost parameters
+	// lastBoostTime
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->lastBoostTime[i] = 0;
+	}
+
+	for(int i = 0; i < numMotors; i++)
+	{
+		this->lastMotorSpeed[i] = 0;
+	}
+
+	// Boost length in milliseconds
+	this->boostLength = 15;
+
+	// Boost thresholds
+	this->jointBoostThreshold[0] = 0;
+	this->jointBoostThreshold[1] = 0;
+	this->jointBoostThreshold[2] = 0;
+	this->jointBoostThreshold[3] = 20;
+	this->jointBoostThreshold[4] = 0;
 
 	this->mux = Multiplexer();
 	this->motor = MotorController();
@@ -105,6 +127,40 @@ int RobotArm::getLastPidTime(int jointNumber)
 	jointNumber = this->clamp(jointNumber, 0, 4);
 
 	return this->lastPidTime[jointNumber];
+}
+
+// Set the motor speed for the provided joint and 
+// do speed boosts for speeds below the boost threshold
+void RobotArm::setJointMotorSpeed(int jointNumber, int speed)
+{
+	// Clamp input
+	jointNumber = this->clamp(jointNumber, 0, 4);
+	speed = this->clamp(speed, -100, 100);
+
+	// Get current runtime
+	int timeNow = millis();
+
+	// Store desired motor speed
+	int desiredMotorSpeed = speed;
+
+	// Check if we should start a boost
+	if(desiredMotorSpeed < this->jointBoostThreshold[jointNumber]
+	   && this->lastMotorSpeed[jointNumber] < desiredMotorSpeed
+	   && this->jointBoostThreshold[jointNumber] > 0)
+	{
+		this->lastBoostTime[jointNumber] = timeNow;
+	}
+
+	// Check if we should boost
+	if((this->lastBoostTime[jointNumber] + this->boostLength) > timeNow
+	   && this->jointBoostThreshold[jointNumber] > 0)
+	{
+		speed = 100;
+	}
+
+	this->motor.speed(this->motorNumber[jointNumber], speed);
+
+	this->lastMotorSpeed[jointNumber] = desiredMotorSpeed;
 }
 
 // Clamps the input between min and max
@@ -351,8 +407,9 @@ void RobotArm::hand(float targetAngle)
 void RobotArm::loop()
 {
 	// Elbow
-	this->moveJointToSetPoint(2);
+	//this->moveJointToSetPoint(2);
 
 	// Wrist
-	this->moveJointToSetPoint(3);
+	//this->moveJointToSetPoint(3);
+	this->setJointMotorSpeed(3, 5);
 }
