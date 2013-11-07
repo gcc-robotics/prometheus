@@ -9,7 +9,7 @@ RobotArm arm = RobotArm();
 Debugger debug = Debugger();
 
 // Enable or disable debugger
-boolean runDebugger = false;
+boolean runDebugger = true;
 
 void setup() 
 { 

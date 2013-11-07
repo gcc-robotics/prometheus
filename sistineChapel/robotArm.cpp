@@ -138,14 +138,14 @@ void RobotArm::setJointMotorSpeed(int jointNumber, int speed)
 	speed = this->clamp(speed, -100, 100);
 
 	// Get current runtime
-	int timeNow = millis();
+	unsigned long timeNow = millis();
 
 	// Store desired motor speed
 	int desiredMotorSpeed = speed;
 
 	// Check if we should start a boost
-	if(desiredMotorSpeed < this->jointBoostThreshold[jointNumber]
-	   && this->lastMotorSpeed[jointNumber] < desiredMotorSpeed
+	if(abs(desiredMotorSpeed) < this->jointBoostThreshold[jointNumber]
+	   && this->lastMotorSpeed[jointNumber] < abs(desiredMotorSpeed)
 	   && this->jointBoostThreshold[jointNumber] > 0)
 	{
 		this->lastBoostTime[jointNumber] = timeNow;
@@ -155,7 +155,14 @@ void RobotArm::setJointMotorSpeed(int jointNumber, int speed)
 	if((this->lastBoostTime[jointNumber] + this->boostLength) > timeNow
 	   && this->jointBoostThreshold[jointNumber] > 0)
 	{
-		speed = 100;
+		if(desiredMotorSpeed < 0)
+		{
+			speed = -25;
+		}
+		else
+		{
+			speed = 25;
+		}
 	}
 
 	this->motor.speed(this->motorNumber[jointNumber], speed);
@@ -264,8 +271,8 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 	//Serial.print(proportionalTerm);
 
 	// Get the time interval
-	int timeNow = millis();
-	float timeDifference = (timeNow - this->lastPidTime[jointNumber]) / 1000.0;
+	unsigned long timeNow = millis();
+	unsigned float timeDifference = (timeNow - this->lastPidTime[jointNumber]) / 1000.0;
 
 	//Serial.print(" timeDifference: ");
 	//Serial.print(timeDifference);
@@ -334,11 +341,11 @@ bool RobotArm::moveJointToSetPoint(int jointNumber)
 	// Move in the right direction
 	if(angleError > 0)
 	{
-		this->motor.speed(this->motorNumber[jointNumber], motorSpeed);
+		this->setJointMotorSpeed(jointNumber, motorSpeed);
 	}
 	else
 	{
-		this->motor.speed(this->motorNumber[jointNumber], -motorSpeed);
+		this->setJointMotorSpeed(jointNumber, -motorSpeed);
 	}
 }
 
@@ -410,6 +417,5 @@ void RobotArm::loop()
 	//this->moveJointToSetPoint(2);
 
 	// Wrist
-	//this->moveJointToSetPoint(3);
-	this->setJointMotorSpeed(3, 5);
+	this->moveJointToSetPoint(3);
 }
