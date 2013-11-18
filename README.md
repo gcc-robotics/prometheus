@@ -28,6 +28,6 @@ The Raspberry Pi is used to provide remote control of the Prometheus.
 
 
 
-0: http://www.robotics.glendale.edu
-1: http://arduino.cc/en/Main/Software
-2: https://github.com/gcc-robotics/prometheus/blob/master/sistineChapel/sistineChapel.ino
+[0]: http://www.robotics.glendale.edu
+[1]: http://arduino.cc/en/Main/Software
+[2]: https://github.com/gcc-robotics/prometheus/blob/master/sistineChapel/sistineChapel.ino
