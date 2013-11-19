@@ -272,7 +272,7 @@ float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
 
 	// Get the time interval
 	unsigned long timeNow = millis();
-	unsigned float timeDifference = (timeNow - this->lastPidTime[jointNumber]) / 1000.0;
+	unsigned int timeDifference = (timeNow - this->lastPidTime[jointNumber]) / 1000.0;
 
 	//Serial.print(" timeDifference: ");
 	//Serial.print(timeDifference);

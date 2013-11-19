@@ -9,7 +9,7 @@ class RobotArm
 	private:
 		// PID Parameters
 		float previousError[5];
-		unsigned float lastPidTime[5];
+		unsigned long lastPidTime[5];
 		float setPoint[5];
 		float integralTerm[5];
 
