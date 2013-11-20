@@ -37,7 +37,7 @@ The software runs a simple web server to serve a static web page with controls f
 * 222MB Raspbian Image http://www.raspbian.org/HexxehImages
 * 118MB Raspbian Image (Seems better) http://www.linuxsystems.it/raspbian-wheezy-armhf-raspberry-pi-minimal-image/
 * Ask Ubuntu Question about GParted (should be usable for partition expansion / growing) http://askubuntu.com/questions/51272/how-do-i-repartition-with-gparted
-
+* Simple python webserver with ajax support on SO http://stackoverflow.com/questions/336866/how-to-implement-a-minimal-server-for-ajax-in-python
 [0]: http://www.robotics.glendale.edu
 [1]: http://arduino.cc/en/Main/Software
 [2]: https://github.com/gcc-robotics/prometheus/blob/master/sistineChapel/sistineChapel.ino
