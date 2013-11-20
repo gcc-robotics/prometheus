@@ -8,7 +8,7 @@ This repository currently contains the software for the Arduino and the the soft
 Sistine Chapel - Arduino Software
 ---------------------------------
 
-The _sistineChapel_ subdirectory contains the Arduino software for controlling the Prometheus.
+The __sistineChapel__ subdirectory contains the Arduino software for controlling the Prometheus.
 
 ### Setup
 
@@ -24,9 +24,17 @@ To compile and upload to the Arduino use the free [Arduino IDE][1]. Once you hav
 Narthex - Raspberry Pi Software
 -------------------------------
 
-The _narthex_ subdirectory contains the software to be run on the Raspberry Pi. 
+The __narthex__ subdirectory contains the software to be run on the Raspberry Pi. 
 
 The software runs a simple web server to serve a static web page with controls for Prometheus enabling remote control.
+
+### Todo
+
+* [x] Make simple web server to server the remote control interface and act on json requests
+* [ ] Write class for Arduino to process the commands from the web server
+* [ ] Test the serial communication between the server script and the Arduino
+* [ ] Add WebGL rendering of the arm based on the set points
+* [ ] Send information back to the remote control interface about the current status of the arm
 
 ### Links
 
@@ -39,6 +47,7 @@ The software runs a simple web server to serve a static web page with controls f
 * Ask Ubuntu Question about GParted (should be usable for partition expansion / growing) http://askubuntu.com/questions/51272/how-do-i-repartition-with-gparted
 * Simple python webserver with ajax support on SO http://stackoverflow.com/questions/336866/how-to-implement-a-minimal-server-for-ajax-in-python
 * WebGL STL Rendering http://tonylukasavage.com/blog/2013/04/10/web-based-stl-viewing-three-dot-js/
+* Knockout JS, library used for data binding in narthex http://knockoutjs.com/
 
 [0]: http://www.robotics.glendale.edu
 [1]: http://arduino.cc/en/Main/Software
