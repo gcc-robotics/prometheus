@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Prometheus</title>
+	
+	<link rel="stylesheet" href="css/foundation.css">
+	
+	<script src="js/vendor/custom.modernizr.js"></script>
+
+</head>
+<body>
+	
+	<!-- Header and Nav -->
+	<nav class="top-bar">
+		<ul class="title-area">
+			<!-- Title Area -->
+			<li class="name">
+				<h1>
+					<a href="index.html">
+					Prometheus
+					</a>
+				</h1>
+			</li>
+			<li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+		</ul>
+
+		<section class="top-bar-section">
+			<!-- Left Nav Section -->
+			<ul class="left">
+				<li class="divider"></li>
+				<li><a href="#">Manual Control</a></li>
+				<li class="divider"></li>
+			</ul>
+
+			<!-- Right Nav Section -->
+			<ul class="right">
+				<li class="divider"></li>
+				<li><a href="#">Settings</a></li>
+			</ul>
+		</section>
+	</nav>
+
+
+	<!-- End Header and Nav -->
+	
+	<div class="row">
+		<div class="large-9 columns">
+			<h1>Prometheus Manual Control</h1>
+		</div>
+		<div class="large-3 columns">
+			<div class="switch large round" style="margin-top: 20px;">
+				<input id="control-disable" name="control-enable" value="off" type="radio" data-bind="checked: textEnabled" />
+				<label for="control-disable" onclick="">Disabled</label>
+
+				<input id="control-enable" name="control-enable" value="on" type="radio" data-bind="checked: textEnabled" />
+				<label for="control-enable" onclick="">Enabled</label>
+
+				<span></span>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="large-6 columns">
+			<fieldset class="panel">
+				<legend><h3 data-bind="text: joints()[0].title"></h3></legend>
+				<input type="range" id="base-angle" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joints()[0].setPoint, disable: !enabled()" />
+				<div class="row">
+					<div class="large-3 columns"><span data-bind="text: joints()[0].min">0</span>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joints()[0].setPoint">180</strong>&deg;</div>
+					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joints()[0].max">0</span>&deg;</div>
+				</div>
+			</fieldset>
+		</div>
+		
+		<div class="large-6 columns">
+			<fieldset class="panel">
+				<legend><h3 data-bind="text: joints()[1].title"></h3></legend>
+				<input type="range" id="base-angle" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joints()[1].setPoint, disable: !enabled()" />
+				<div class="row">
+					<div class="large-3 columns"><span data-bind="text: joints()[1].min">0</span>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joints()[1].setPoint">180</strong>&deg;</div>
+					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joints()[1].max">0</span>&deg;</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="large-4 columns">
+			<fieldset class="panel">
+				<legend><h3 data-bind="text: joints()[2].title"></h3></legend>
+				<input type="range" id="base-angle" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joints()[2].setPoint, disable: !enabled()" />
+				<div class="row">
+					<div class="large-3 columns"><span data-bind="text: joints()[2].min">0</span>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joints()[2].setPoint">180</strong>&deg;</div>
+					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joints()[2].max">0</span>&deg;</div>
+				</div>
+			</fieldset>
+		</div>
+		
+		<div class="large-4 columns">
+			<fieldset class="panel">
+				<legend><h3 data-bind="text: joints()[3].title"></h3></legend>
+				<input type="range" id="base-angle" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joints()[3].setPoint, disable: !enabled()" />
+				<div class="row">
+					<div class="large-3 columns"><span data-bind="text: joints()[3].min">0</span>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joints()[3].setPoint">180</strong>&deg;</div>
+					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joints()[3].max">0</span>&deg;</div>
+				</div>
+			</fieldset>
+		</div>
+		
+		<div class="large-4 columns">
+			<fieldset class="panel">
+				<legend><h3 data-bind="text: joints()[4].title"></h3></legend>
+				<input type="range" id="base-angle" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joints()[4].setPoint, disable: !enabled()" />
+				<div class="row">
+					<div class="large-3 columns"><span data-bind="text: joints()[4].min">0</span>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joints()[4].setPoint">180</strong>&deg;</div>
+					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joints()[4].max">0</span>&deg;</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	
+	<script src="js/vendor/jquery.js"></script>
+	<script src="js/vendor/knockout-3.0.0.js"></script>
+	<script src="js/prometheus.js"></script>
+	<script src="js/foundation.min.js"></script>
+	
+	<!--
+	
+	<script src="js/foundation/foundation.js"></script>
+	
+	<script src="js/foundation/foundation.interchange.js"></script>
+	
+	<script src="js/foundation/foundation.abide.js"></script>
+	
+	<script src="js/foundation/foundation.dropdown.js"></script>
+	
+	<script src="js/foundation/foundation.placeholder.js"></script>
+	
+	<script src="js/foundation/foundation.forms.js"></script>
+	
+	<script src="js/foundation/foundation.alerts.js"></script>
+	
+	<script src="js/foundation/foundation.magellan.js"></script>
+	
+	<script src="js/foundation/foundation.reveal.js"></script>
+	
+	<script src="js/foundation/foundation.tooltips.js"></script>
+	
+	<script src="js/foundation/foundation.clearing.js"></script>
+	
+	<script src="js/foundation/foundation.cookie.js"></script>
+	
+	<script src="js/foundation/foundation.joyride.js"></script>
+	
+	<script src="js/foundation/foundation.orbit.js"></script>
+	
+	<script src="js/foundation/foundation.section.js"></script>
+	
+	-->
+	
+	<script src="js/foundation/foundation.topbar.js"></script>	
+	
+	<script>
+	$(document).foundation();
+	</script>
+</body>
+</html>
