@@ -30,11 +30,11 @@ The software runs a simple web server to serve a static web page with controls f
 
 ### Todo
 
-* [x] Make simple web server to server the remote control interface and act on json requests
-* [ ] Write class for Arduino to process the commands from the web server
-* [ ] Test the serial communication between the server script and the Arduino
-* [ ] Add WebGL rendering of the arm based on the set points
-* [ ] Send information back to the remote control interface about the current status of the arm
+- [x] Make simple web server to server the remote control interface and act on json requests
+- [ ] Write class for Arduino to process the commands from the web server
+- [ ] Test the serial communication between the server script and the Arduino
+- [ ] Add WebGL rendering of the arm based on the set points
+- [ ] Send information back to the remote control interface about the current status of the arm
 
 ### Links
 
