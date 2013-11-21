@@ -5,6 +5,7 @@ import json
 
 IP = ""
 PORT = 80
+SERIAL_PORT = '/dev/ttyUSB0'
 
 global server
 global comm
@@ -12,36 +13,45 @@ global comm
 class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 	def do_POST(self):
-		length = int(self.headers.getheader('content-length'))        
-		dataString = self.rfile.read(length)
-		jsonData = {}
-		
-		try:
-			jsonData = json.loads(dataString)
-		except:
-			result = "Failed to parse input json"
-		
-		if jsonData != {}:
-			jointNumber = int(jsonData['jointNumber'])
-			setPoint = int(jsonData['setPoint'])
+		if self.path == "command/setJointAngle/":
+			### JSON control command from the control interface
+
+			length = int(self.headers.getheader('content-length'))        
+			dataString = self.rfile.read(length)
+			jsonData = {}
 			
-			result = "Setting joint " + str(jointNumber) + " to " + str(setPoint) + " degrees!"	
+			try:
+				jsonData = json.loads(dataString)
+			except:
+				response = "Failed to parse input json"
 			
-			# Send command to arduino
-			comm.write("setJointSetPoint " + str(jointNumber) + " " + str(setPoint))
-			
-		self.wfile.write(result)
+			if jsonData != {}:
+				jointNumber = int(jsonData['jointNumber'])
+				setPoint = int(jsonData['setPoint'])
+				
+				command = "setJointAngle " + str(jointNumber) + " " + str(setPoint)
+				response = 	"Sending command: " + command
+				
+				# Send command to Arduino
+				comm.write(command)
+
+		else:
+			response = "Unknown command"
+
+		self.wfile.write(response)
+
 
 def startServer():
 	global server
 	
 	server_address = (IP, PORT)
 	server = BaseHTTPServer.HTTPServer(server_address, requestHandler)
+	server.timeout = 0.1
 
 def startSerial():
 	global comm
 	
-	comm = serial.Serial('/dev/ttyUSB0', 115200, timeout=0.01)
+	comm = serial.Serial(SERIAL_PORT, 115200, timeout=0.01)
 	comm.open()
 
 def main():
@@ -58,9 +68,8 @@ def main():
 			server.handle_request()
 			
 			# Handle serial communication
-			#comm.write("testing")
-			#response = comm.readline()
-			#print response
+			response = comm.readline()
+			print response + "\n"
 			
 	except KeyboardInterrupt:
 		comm.close()

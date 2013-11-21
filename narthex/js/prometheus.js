@@ -15,7 +15,7 @@ function Joint(data)
 		{
 			console.log("Joint " + self.jointNumber + " setPoint: " + newValue);
 			
-			$.ajax("/command", {
+			$.ajax("/command/setJointAngle/", {
 				data: ko.toJSON(
 				{
 					jointNumber: self.jointNumber, 

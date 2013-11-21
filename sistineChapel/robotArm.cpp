@@ -63,17 +63,17 @@ void RobotArm::setup()
 	
 	// Motor numbers
 	this->motorNumber[0] = 0;
-	this->motorNumber[1] = 0;
-	this->motorNumber[2] = 4;
-	this->motorNumber[3] = 0;
-	this->motorNumber[4] = 0;
+	this->motorNumber[1] = 1;
+	this->motorNumber[2] = 2;
+	this->motorNumber[3] = 3;
+	this->motorNumber[4] = 4;
 
 	// Encoder numbers
 	this->encoderNumber[0] = 0;
-	this->encoderNumber[1] = 0;
-	this->encoderNumber[2] = 1;
-	this->encoderNumber[3] = 0;
-	this->encoderNumber[4] = 0;
+	this->encoderNumber[1] = 1;
+	this->encoderNumber[2] = 2;
+	this->encoderNumber[3] = 3;
+	this->encoderNumber[4] = 4;
 
 	// Boost parameters
 	// lastBoostTime
@@ -94,7 +94,7 @@ void RobotArm::setup()
 	this->jointBoostThreshold[0] = 0;
 	this->jointBoostThreshold[1] = 0;
 	this->jointBoostThreshold[2] = 0;
-	this->jointBoostThreshold[3] = 20;
+	this->jointBoostThreshold[3] = 0;
 	this->jointBoostThreshold[4] = 0;
 
 	this->mux = Multiplexer();
@@ -413,9 +413,18 @@ void RobotArm::hand(float targetAngle)
 
 void RobotArm::loop()
 {
+	// Waist
+	this->moveJointToSetPoint(0);
+
+	// Shoulder
+	this->moveJointToSetPoint(1);
+
 	// Elbow
-	//this->moveJointToSetPoint(2);
+	this->moveJointToSetPoint(2);
 
 	// Wrist
 	this->moveJointToSetPoint(3);
+
+	// Hand
+	this->moveJointToSetPoint(4);
 }

@@ -3,13 +3,15 @@
 
 #include "robotArm.h"
 #include "debugger.h"
+#include "commandProcessor.h"
 
 // This isn't the greatest placement
 RobotArm arm = RobotArm();
 Debugger debug = Debugger();
+CommandProcessor commandProcessor = CommandProcessor();
 
 // Enable or disable debugger
-boolean runDebugger = true;
+boolean runDebugger = false;
 
 void setup() 
 { 
@@ -22,16 +24,18 @@ void setup()
 	Serial.setTimeout(10);
 
 	arm.setup();
+	commandProcessor.setup(&arm);
 	debug.setup(arm.getMultiplexer(), arm.getMotorController(), &arm);
 
 	// Set a random setPoint for the elbow
-	//randomSeed(analogRead(A3));
-	//arm.elbow(random(0, 361));
+	randomSeed(analogRead(A3));
+	arm.waist(random(0, 360));
 }
 
 void loop() 
 {
 	arm.loop();
+	commandProcessor.loop();
 
 	if(runDebugger)
 	{
