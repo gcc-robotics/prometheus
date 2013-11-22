@@ -20,7 +20,7 @@ class CommandProcessor
 		// -----------------------------------------------
 
 		// Command to set a joint to a specific angle
-		void setJointAngle(int jointNumber, int angle);
+		void setJointAngle(String command);
 
 		// Loop function for the CommandProcessor
 		// Call in the Arduino loop function
