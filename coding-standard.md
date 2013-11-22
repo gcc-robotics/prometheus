@@ -8,9 +8,11 @@ Project Coding Standard
 Function Documentation Syntax
 -----------------------------
 
+```
 /**
 * Function Description
 * @param paramName paramType Parameter description
 * @param paramName paramType Parameter description
 * @return returnType Return description
 */
+```
