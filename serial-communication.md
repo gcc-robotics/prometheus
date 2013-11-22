@@ -6,12 +6,12 @@ This is a list of commands that the Arduino will accept over serial. The command
 Commands
 --------
 
-* setJointAngle <jointNumber> <angle>
-* getJointAngle <jointNumber>
-* getJointLimits <jointNumber>
+* setJointAngle [jointNumber] [angle]
+* getJointAngle [jointNumber]
+* getJointLimits [jointNumber]
 
 
-### setJointAngle <jointNumber> <angle>
+### setJointAngle [jointNumber] [angle]
 
 #### Description
 
@@ -29,7 +29,7 @@ The Arduino sets the selected joint to the provided angle.
 No response
 
 
-### getJointAngle <jointNumber>
+### getJointAngle [jointNumber]
 
 #### Description
 
@@ -42,7 +42,7 @@ The Arduino gets the current encoder angle for the provided joint and sends it b
 
 #### Response
 
-jointAngle <jointNumber> <angle>
+jointAngle [jointNumber] [angle]
 
 * jointNumber
   Integer between 0 and 4
@@ -50,7 +50,7 @@ jointAngle <jointNumber> <angle>
   Integer between 0 and 359
 
 
-### getJointLimits <jointNumber>
+### getJointLimits [jointNumber]
 
 #### Description
 
@@ -63,7 +63,7 @@ The Arduino gets the current encoder angle for the provided joint and sends it b
 
 #### Response
 
-getJointLimits <jointNumber> <min> <max>
+getJointLimits [jointNumber] [min] [max]
 
 * jointNumber
   Integer between 0 and 4
