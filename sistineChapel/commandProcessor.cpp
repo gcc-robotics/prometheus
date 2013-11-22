@@ -20,12 +20,7 @@ void CommandProcessor::loop()
 
 		if(command.indexOf("setJointAngle") >= 0)
 		{
-			int jointNumber = command.substring(14,15).toInt();
-			int angle = command.substring(16).toInt();
-
-			this->setJointAngle(jointNumber, angle);
-
-			Serial.println("Setting joint angle");
+			this->setJointAngle(command);
 		}
 	}
 }
@@ -35,7 +30,12 @@ void CommandProcessor::loop()
 // -----------------------------------------------
 
 // Command to set a joint to a specific angle
-void CommandProcessor::setJointAngle(int jointNumber, int angle)
+void CommandProcessor::setJointAngle(String command)
 {
+	int jointNumber = command.substring(14,15).toInt();
+	int angle = command.substring(16).toInt();
+
 	this->arm->setJointAngle(jointNumber, angle);
+
+	//Serial.println("Setting joint angle");
 }
