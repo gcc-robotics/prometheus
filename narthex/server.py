@@ -1,7 +1,7 @@
 import BaseHTTPServer
 import SimpleHTTPServer
 import json
-#import serial
+import serial
 
 IP = ""
 PORT = 80

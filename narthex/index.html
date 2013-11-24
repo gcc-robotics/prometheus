@@ -46,23 +46,35 @@
 
 
 	<!-- End Header and Nav -->
-	
+
+	<!-- Page title and disable switch -->
+
 	<div class="row">
 		<div class="large-9 columns">
 			<h1>Prometheus Manual Control</h1>
 		</div>
 		<div class="large-3 columns">
-			<div class="switch large round" style="margin-top: 20px;">
+			<div class="switch large" style="margin-top: 20px;">
 				<input id="control-disable" name="control-enable" value="off" type="radio" data-bind="checked: textEnabled" />
-				<label for="control-disable" onclick="">Disabled</label>
+				<label for="control-disable" onclick="" style="padding-left: 10px;">Disabled</label>
 
 				<input id="control-enable" name="control-enable" value="on" type="radio" data-bind="checked: textEnabled" />
-				<label for="control-enable" onclick="">Enabled</label>
+				<label for="control-enable" onclick="" style="padding-right: 10px;">Enabled</label>
 
 				<span></span>
 			</div>
 		</div>
 	</div>
+
+	<!-- WegGL Rendering Canvas -->
+
+	<div class="row">
+		<div id="3d-prometheus-container" class="large-12 columns panel" style="height: 500px; padding: 0;">
+
+		</div>
+	</div>
+
+	<!-- Joint angle sliders -->
 	
 	<div class="row">
 		<div class="large-6 columns">
@@ -132,6 +144,12 @@
 	<script src="js/vendor/knockout-3.0.0.js"></script>
 	<script src="js/prometheus.js"></script>
 	<script src="js/foundation.min.js"></script>
+
+	<!-- WebGL Rendering JS -->
+	<script src="js/three/three.js"></script>
+	<script src="js/three/STLLoader.js"></script>
+	<script src="js/three/prometheus.three.js"></script>
+
 	
 	<!--
 	
