@@ -5,7 +5,7 @@ function RobotArm(viewModel)
 	self.viewModel = viewModel;
 
 	self.container = $('#3d-prometheus-container');
-	self.width = 1000;
+	self.width = 970;
 	self.height = 500;
 	
 	self.cameraIterator = 0;
@@ -15,10 +15,12 @@ function RobotArm(viewModel)
 	self.meshesToLoad = 0;
 	self.meshesLoaded = 0;
 	
-	// 3D Rendering Functions
-
+	// Methods
 	self.init = function()
 	{
+		// Enable auto-resizing of the renderer canvas
+		self.startAutoResize();
+		
 		// Camera
 		self.camera = new THREE.PerspectiveCamera(45, self.width / self.height, 0.1, 10000);
 		self.camera.position.z = self.cameraDistance;
@@ -40,14 +42,23 @@ function RobotArm(viewModel)
 				color: 0xCC0000
 			});
 
-		// Light
-		self.light = new THREE.PointLight(0xFFFFFF);
+		// First Light
+		var light = new THREE.PointLight(0xFFFFFF);
 
-		self.light.position.x = 10;
-		self.light.position.y = 250;
-		self.light.position.z = 130;
-
-		self.scene.add(self.light);
+		light.position.x = 0;
+		light.position.z = self.cameraDistance;
+		light.position.y = self.cameraDistance * 1.5;
+		self.scene.add(light);
+		
+		// Second Light
+		light = light.clone();
+		light.position.z = -self.cameraDistance;
+		self.scene.add(light);
+		
+		// Ground Plane
+		self.ground = new THREE.Mesh(new THREE.PlaneGeometry(5000, 5000, 40, 40), new THREE.MeshBasicMaterial({ wireframe: true, color: 0x999999 }));
+		self.ground.rotation.x = Math.PI / 2;
+		self.scene.add(self.ground);
 
 		// Init STL Loader
 		self.loader = new THREE.STLLoader();
@@ -75,10 +86,28 @@ function RobotArm(viewModel)
 		self.loader.load('./models/humerus.stl');
 	}
 	
+	self.startAutoResize = function()
+	{
+		window.addEventListener('resize', self.autoResizeCallback, false);
+	}
+	
+	self.stopAutoResize = function()
+	{
+		window.removeEventListener('resize', self.autoResizeCallback);
+	}
+	
+	self.autoResizeCallback = function()
+	{
+		self.renderer.setSize(self.container.width(), self.container.height());
+		
+		self.camera.aspect = self.container.width() / self.container.height();
+		self.camera.updateProjectionMatrix();
+	}
+	
 	self.addLine = function(parent, start, end)
 	{
 		// Line width doesn't work on windows
-		var material = new THREE.LineBasicMaterial({linewidth: 3});
+		var material = new THREE.LineBasicMaterial({linewidth: 3, color: 0x00FF00});
 		
 		var geometry = new THREE.Geometry;
 		geometry.vertices.push(start);
@@ -102,9 +131,6 @@ function RobotArm(viewModel)
 		self.mesh['torso'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 0, offset.z));
 		self.mesh['torso'].geometry.computeBoundingBox();
 		
-		// Move torso so that the base is on 0,0,0 of the scene
-		self.mesh['torso'].geometry.computeBoundingBox();
-		
 		// Add humerus to torso
 		self.mesh['torso'].add(self.mesh['humerus']);
 		
@@ -120,6 +146,7 @@ function RobotArm(viewModel)
 		// Add lines for axes of rotation
 		self.addLine(self.scene, new THREE.Vector3(0, -75, 0), new THREE.Vector3(0, 75, 0));
 		self.addLine(self.mesh['torso'], new THREE.Vector3(100, 281, 0), new THREE.Vector3(-100, 281, 0));
+		self.addLine(self.mesh['humerus'], new THREE.Vector3(100, -290, -135), new THREE.Vector3(-100, -290, -138));
 
 		console.log('Loading complete!');
 		
@@ -127,8 +154,6 @@ function RobotArm(viewModel)
 		self.animate();	
 	}
 	
-	self.humerusRotationCoef = -0.01;
-
 	self.animate = function()
 	{
 		requestAnimationFrame(self.animate);
@@ -137,27 +162,11 @@ function RobotArm(viewModel)
 		self.mesh['torso'].rotation.y = self.viewModel.joints()[0].setPoint() / 180 * Math.PI;
 		self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].setPoint() / 180 * Math.PI;
 		
-		// Rotate Torso
-		/*
-		self.mesh['torso'].rotation.y += 0.01;
-		
-		// Rotate Humerus
-		if(self.mesh['humerus'].rotation.x <= 0
-		   || self.mesh['humerus'].rotation.x >= Math.PI)
-		{
-			self.humerusRotationCoef *= -1;
-		}
-		
-		self.mesh['humerus'].rotation.x += self.humerusRotationCoef;
-		*/
-		
-		// Rotate camera around 0,0,0
-		/*
+		// Rotate camera around 0,300,0
 		self.cameraIterator += 0.01;
 		self.camera.position.x = Math.sin(self.cameraIterator) * self.cameraDistance;
 		self.camera.position.z = Math.cos(self.cameraIterator) * self.cameraDistance;
 		self.camera.lookAt(new THREE.Vector3(0, 300, 0));
-		*/
 		
 		self.renderer.render(self.scene, self.camera);
 	}
