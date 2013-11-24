@@ -96,9 +96,10 @@ THREE.STLLoader.prototype.parse = function (data) {
 
 	var binData = this.ensureBinary( data );
 	
-	return geometry = isBinary()
+	return isBinary()
 		? this.parseBinary( binData )
 		: this.parseASCII( this.ensureString( data ) );
+	
 };
 
 THREE.STLLoader.prototype.parseBinary = function (data) {
