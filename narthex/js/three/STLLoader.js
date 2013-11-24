@@ -43,6 +43,8 @@ THREE.STLLoader.prototype.load = function (url, callback) {
 		if ( event.target.status === 200 || event.target.status === 0 ) {
 
 				var geometry = scope.parse( event.target.response || event.target.responseText );
+				
+				geometry.name = url.replace(/^.*[\\\/]/, '').replace(/\..+$/, '');
 
 				scope.dispatchEvent( { type: 'load', content: geometry } );
 
@@ -93,11 +95,10 @@ THREE.STLLoader.prototype.parse = function (data) {
 	};
 
 	var binData = this.ensureBinary( data );
-
-	return isBinary()
+	
+	return geometry = isBinary()
 		? this.parseBinary( binData )
 		: this.parseASCII( this.ensureString( data ) );
-
 };
 
 THREE.STLLoader.prototype.parseBinary = function (data) {

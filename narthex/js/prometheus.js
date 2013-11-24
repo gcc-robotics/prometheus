@@ -130,20 +130,23 @@ function PrometheusViewModel()
 
 var vm = new PrometheusViewModel()
 
+var arm = new RobotArm(vm);
+arm.init();
+
 vm.addJoint({
 	title: "Base",
 	jointNumber: 0,
 	min: 0,
 	max: 359,
-	setPoint: 180
+	setPoint: 0
 });
 
 vm.addJoint({
 	title: "Shoulder",
 	jointNumber: 1,
 	min: 0,
-	max: 359,
-	setPoint: 180
+	max: 180,
+	setPoint: 0
 });
 
 vm.addJoint({
@@ -171,4 +174,3 @@ vm.addJoint({
 });
 
 ko.applyBindings(vm);
-
