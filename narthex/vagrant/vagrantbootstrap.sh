@@ -93,8 +93,8 @@ then
 	# Copy the apache site file
 	cp /vagrant/vagrant/default /etc/apache2/sites-available/default
 
-	# Symlink www to the public directory in our vagrant folder
-	ln -s /vagrant/public/ www
+	# Symlink www to the vagrant directory
+	ln -s /vagrant/ www
 
 	# Restart apache
 	service apache2 restart

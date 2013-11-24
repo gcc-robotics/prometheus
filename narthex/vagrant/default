@@ -3,12 +3,12 @@ NameVirtualHost *:8080
         ServerAdmin webmaster@localhost
         ServerName 127.0.0.1
 
-        DocumentRoot /vagrant/public
+        DocumentRoot /vagrant
         <Directory />
                 Options FollowSymLinks
                 AllowOverride None
         </Directory>
-        <Directory /vagrant/public>
+        <Directory /vagrant>
                 Options Indexes FollowSymLinks MultiViews
                 AllowOverride All
                 Order allow,deny
