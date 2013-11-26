@@ -27,6 +27,18 @@ class RobotArm
 		int motorNumber[5];
 		int encoderNumber[5];
 
+		int min[0] = 0;
+		int min[1] = 0;
+		int min[2] = 0;
+		int min[3] = 0;
+		int min[4] = 0;
+
+		int max[0] = 0;
+		int max[1] = 0;
+		int max[2] = 0;
+		int max[3] = 0;
+		int max[4] = 0;
+
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;
 		Multiplexer mux;
@@ -66,6 +78,12 @@ class RobotArm
 
 		// Set joint setPoint
 		void setJointAngle(int jointNumber, float angle);
+
+		int getJointAngle(int jointNumber);
+
+		int getJointMinimum(int jointNumber);
+
+		int getJointMaximum(int jointNumber);
 
 		// Move the waist the the provided angle
 		void waist(float degrees);
