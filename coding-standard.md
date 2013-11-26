@@ -8,6 +8,8 @@ Project Coding Standard
 Function Documentation Syntax
 -----------------------------
 
+For C++ function headers are SHOULD only be in the header file.
+
 ```
 /**
 * Function Description
