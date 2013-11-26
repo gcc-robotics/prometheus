@@ -65,7 +65,3 @@ void CommandProcessor::getJointLimits(String command)
 	
 	Serial.println("Your joint number is " + jointNumber + " and the minimum angle is " + min + " and the maximum angle is " + max);
 }
-
-//make private variables
-min[0] to min[4]
-max[0] to max[4]
