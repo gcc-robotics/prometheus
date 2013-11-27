@@ -386,6 +386,21 @@ void RobotArm::setJointAngle(int jointNumber, float angle)
 	this->setPoint[jointNumber] = angle;
 }
 
+int RobotArm::getJointAngle(int jointNumber)
+{
+	return this->mux.readEncoder(this->encoderNumber[jointNumber]);
+}
+
+int RobotArm::getJointMinimum(int jointNumber)
+{
+	return min[jointNumber];
+}
+
+int RobotArm::getJointMaximum(int jointNumber)
+{
+	return max[jointNumber];
+}
+
 void RobotArm::waist(float targetAngle)
 {
 	this->setJointAngle(0, targetAngle);

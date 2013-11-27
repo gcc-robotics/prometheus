@@ -21,6 +21,8 @@ class CommandProcessor
 
 		// Command to set a joint to a specific angle
 		void setJointAngle(String command);
+		void getJointAngle(String command);
+		void getJointLimits(String command);
 
 		// Loop function for the CommandProcessor
 		// Call in the Arduino loop function
