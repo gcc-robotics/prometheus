@@ -63,7 +63,7 @@ The Arduino gets the current encoder angle for the provided joint and sends it b
 
 #### Response
 
-getJointLimits [jointNumber] [min] [max]
+jointLimits [jointNumber] [min] [max]
 
 * jointNumber
   Integer between 0 and 4
