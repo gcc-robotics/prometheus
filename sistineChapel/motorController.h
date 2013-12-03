@@ -9,25 +9,43 @@ class MotorController
 		// Pwm object
 		Adafruit_PWMServoDriver pwm;
 
-		//sets the PWM duty cycle for the desired motor
+		/* Sets the PWM duty cycle for the desired motor
+		 * motorNum = 1 to 5
+		 * dutyCycle = -100 to 100
+		 * return void
+		 */
 		void setPwm(int motorNum, float dutyCycle);
-		// On Call Motor is set to move Forward.
+		/* Sets specified motor to move forward.
+		 * motorNum = 1 to 5
+		 * return void
+		 */
 		void forward(int motorNum);
-		// On Call Motor is set to move Reverse
+		/* Sets specified motor to move reverse.
+		 * motorNum = 1 to 5
+		 * return void
+		 */
 		void reverse(int motorNum);
 
 	public:
 		//empty contructor that creates motorController.
 		MotorController();
-                void setup();
+        void setup();
                 
-		//Sets specified motor to specified dutycycle, speed.
-		//motorNumber = 1 to 5
-		//speed = -100 to 100
+		/* Sets specified motor to specified dutycycle, speed.
+		 * motorNumber = 1 to 5
+		 * speed = -100 to 100
+		 * return void
+		 */
 		void speed(int motorNumber, int speed);
-		//On call motor is reset, all pins set to Low. Motor is set to coast.
+		/* Sets specified motor to coast.
+		 * motorNumber = 1 to 5
+		 * return void
+		 */
 		void coast(int motorNumber);
-		// On call motor is reset, all pins set to HIGH. Motor is Stopped.
+		/* Sets specified motor to brake.
+		 * motorNumber = 1 to 5
+		 * return void
+		 */
 		void brake(int motorNumber);
 };
 
