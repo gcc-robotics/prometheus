@@ -56,6 +56,30 @@ ko.bindingHandlers.max =
 	}
 };
 
+ko.bindingHandlers.commandConsoleKeyActions = {
+	init: function(element, valueAccessor, allBindingsAccessor, viewModel)
+	{
+		$(element).keyup(function(e)
+		{
+			if(e.which === 13)
+			{
+				// Return key
+				viewModel.sendCommand();
+			}
+			else if(e.which === 38)
+			{
+				// Up Arrow
+				viewModel.previousCommand();
+			}
+			else if(e.which === 40)
+			{
+				// Down Arrow
+				viewModel.nextCommand();
+			}
+		});
+	}
+};
+
 function Joint(data)
 {
 	var self = this;
@@ -69,7 +93,7 @@ function Joint(data)
 	
 	self.min = ko.observable(data.min);
 	self.max = ko.observable(data.max);
-	self.setPoint = ko.observable(data.setPoint).extend({ notify: 'always' });;
+	self.setPoint = ko.observable(data.setPoint).extend({ notify: 'always' });
 	
 	// An unnamed computed observable to trigger AJAX.
 	// Throttled by 100ms to prevent multiple AJAX requests 
@@ -97,7 +121,7 @@ function Joint(data)
 				type: "post", contentType: "application/json",
 				success: function(result)
 				{
-					console.log(result);
+					console.log(JSON.parse(result));
 				}
 			});
 		}
@@ -106,6 +130,21 @@ function Joint(data)
 			console.log("Manual control disabled.")
 		}
 	}).extend({throttle: 100});
+}
+
+function Command(data)
+{
+	var self = this;
+	
+	self.command = ko.observable(data.command);
+	self.response = ko.observable(data.response);
+	self.duration = ko.observable(data.duration || 0);
+	self.startTime = Date.now();
+	
+	self.durationText = ko.computed(function()
+	{
+		return self.duration() + "ms";
+	});
 }
 
 function PrometheusViewModel()
@@ -120,8 +159,94 @@ function PrometheusViewModel()
 	});
 	
 	self.joints = ko.observableArray([]);
-
+	
+	// Command Console Data
+	self.commandText = ko.observable().extend({ notify: 'always' });
+	self.commandHistory = ko.observableArray();
+	self.commandPosition = 0;
+	
 	// Operations
+	self.sendCommand = function()
+	{
+		var command = self.commandText();
+		self.commandText("");
+		
+		var commandData = command.split(" ");
+		
+		var index = self.commandHistory().length;
+		self.commandPosition = index + 1;
+		self.commandHistory.push(new Command({"command": command}));
+		
+		var allowedCommands = ["setJointAngle", "getJointAngle", "getJointLimits"];
+		
+		if($.inArray(commandData[0], allowedCommands) != -1)
+		{
+			var url = "/command/" + commandData[0] + "/";
+			var postData = {};
+			
+			if(!isNaN(Number(commandData[1])))
+			{
+				postData.jointNumber = commandData[1];
+				
+				if(!isNaN(Number(commandData[2])))
+				{
+					postData.angle = commandData[2];
+				}
+			}
+			
+			console.log(postData);
+			
+			$.ajax(url, {
+				data: ko.toJSON(postData),
+				type: "post", contentType: "application/json",
+				success: function(result)
+				{
+					var data = JSON.parse(result);
+					
+					self.commandHistory()[index].response(data.response);
+					self.commandHistory()[index].duration(Date.now() - self.commandHistory()[index].startTime);
+				},
+				error: function(result)
+				{
+					console.warn(result);
+					
+					self.commandHistory()[index].response("Server error");
+				}
+			});
+		}
+		else
+		{
+			self.commandHistory()[index].response("Invalid command");
+		}
+	};
+	
+	self.previousCommand = function()
+	{
+		if(self.commandPosition > 0)
+		{
+			self.commandPosition -= 1;
+			self.commandText(self.commandHistory()[self.commandPosition].command());
+		}
+	};
+	
+	self.nextCommand = function()
+	{
+		if(self.commandPosition == self.commandHistory().length)
+		{
+			self.commandText("");
+		}
+		else if(self.commandPosition == self.commandHistory().length -1)
+		{
+			self.commandPosition += 1;
+			self.commandText("");
+		}
+		else if(self.commandPosition < self.commandHistory().length - 1)
+		{
+			self.commandPosition += 1;
+			self.commandText(self.commandHistory()[self.commandPosition].command());
+		}
+	};
+
 	self.addJoint = function(data)
 	{
 		self.joints.push(new Joint(data));

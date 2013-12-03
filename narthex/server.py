@@ -5,39 +5,106 @@ import serial
 
 IP = ""
 PORT = 80
-SERIAL_PORT = '/dev/ttyUSB0'
 
 global server
-global comm
+
+class PrometheusSerial:
+	__serialPort = '/dev/ttyUSB0'
+	__connection
+	
+	def init(self):
+		self.__connection = serial.Serial(SERIAL_PORT, 115200, timeout=0.01)
+		self.__connection.open()
+	
+	def close(self):
+		self.__connection.close()
+	
+	def getResponse(self):
+		response = ""
+		
+		while response == "":
+			response = self.__connection.readline()
+		
+		return str(response)
+	
+	def setJointAngle(self, jointNumber, angle):
+		self.__connection.write("setJointAngle " + str(jointNumber) + " " + str(setPoint))
+		
+	def getJointAngle(self, jointNumber):
+		self.__connection.write("getJointAngle " + str(jointNumber))
+		
+		data = self.getResponse().split()
+		
+		if data[0] == 'jointAngle' && data[1] == str(jointNumber):
+			response = json.dumps({'jointNumber': jointNumber, 'angle': str(data[2])})
+		else:
+			response = json.dumps({'error': 'Bad data received from arm'})
+		
+		return response
+	
+	def getJointLimits(self, jointNumber):
+		self.__connection.write("getJointLimits  " + str(jointNumber))
+		
+		data = self.getResponse().split()
+		
+		if data[0] == 'jointLimits' && data[1] == str(jointNumber):
+			response = json.dumps({'jointNumber': jointNumber, 'min': str(data[2]), 'max': str(data[3])})
+		else:
+			response = json.dumps({'error': 'Bad data received from arm'})
+		
+		return response
+		
 
 class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 	def do_POST(self):
-		if self.path == "command/setJointAngle/":
-			### JSON control command from the control interface
-
-			length = int(self.headers.getheader('content-length'))        
-			dataString = self.rfile.read(length)
-			jsonData = {}
+		# Get the data
+		length = int(self.headers.getheader('content-length'))        
+		dataString = self.rfile.read(length)
+		jsonData = {}
+		
+		try:
+			jsonData = json.loads(dataString)
 			
-			try:
-				jsonData = json.loads(dataString)
-			except:
-				response = "Failed to parse input json"
+		except:
+			# The JSON Parser threw an exception
+			response = "Failed to parse JSON data."
+			
+		else:
+			# We successfully parsed the JSON data
 			
 			if jsonData != {}:
-				jointNumber = int(jsonData['jointNumber'])
-				setPoint = int(jsonData['setPoint'])
+				# Check if we received a known command
 				
-				command = "setJointAngle " + str(jointNumber) + " " + str(setPoint)
-				response = 	"Sending command: " + command
+				if self.path == "command/setJointAngle/":
+					# Call method
 				
-				# Send command to Arduino
-				comm.write(command)
+				elif self.path == "command/getJointAngle/":
+					jointNumber = int(jsonData['jointNumber'])
+					
+					# Create command to send to the Arduino
+					command = "getJointAngle " + str(jointNumber)
+					
+					# Send command to Arduino
+					comm.write(command)
+					
+					# Wait for response from the Arduino
+					serialData = ""
+					
+					while serialData == "":
+						serialData = comm.readline()
+					
+					# jointAngle [jointNumber] [angle]
+				
+				elif self.path == "command/getJointLimits/":
+					jointNumber = int(jsonData['jointNumber'])
 
-		else:
-			response = "Unknown command"
+				else:
+					response = "Unknown command."
+			else:
+				response = "No data received. Please send data as JSON."
 
+		# Send response back to the web control interface
 		self.wfile.write(response)
 
 
@@ -48,15 +115,10 @@ def startServer():
 	server = BaseHTTPServer.HTTPServer(server_address, requestHandler)
 	server.timeout = 0.1
 
-def startSerial():
-	global comm
 	
-	comm = serial.Serial(SERIAL_PORT, 115200, timeout=0.01)
-	comm.open()
 
 def main():
 	# Setup
-	startSerial()
 	startServer()
 	
 	global server, comm

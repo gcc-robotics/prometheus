@@ -140,6 +140,42 @@
 		</div>
 	</div>
 	
+	<!-- Custom Command Input -->
+	
+	<div class="row">
+		<div class="large-12 columns">
+			<fieldset class="panel">
+				<legend><h3>Command Console</h3></legend>
+				<div class="row collapse">
+					<div class="large-11 columns">
+						<input type="text" class="large-12 columns" data-bind="value: commandText, disable: !enabled(), commandConsoleKeyActions" />
+					</div>
+					<div class="large-1 columns">
+						<a href="#" class="button prefix" data-bind="click: sendCommand">Send</a>
+					</div>
+				</div>
+				<div class="row collapse">
+					<table class="large-12 columns">
+						<thead>
+							<tr>
+								<th width="200">Command</th>
+								<th>Response</th>
+								<th width="150">Duration</th>
+							</tr>
+						</thead>
+						<tbody data-bind="foreach: commandHistory">
+							<tr>
+								<td data-bind="text: command"></td>
+								<td data-bind="text: response"></td>
+								<td data-bind="text: durationText"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	
 	<script src="js/vendor/jquery.js"></script>
 	<script src="js/vendor/knockout-3.0.0.js"></script>
 	<script src="js/foundation.min.js"></script>
