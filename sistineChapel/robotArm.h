@@ -17,6 +17,9 @@ class RobotArm
 		float integralGain[5];
 		float derivativeGain[5];
 
+		int min[5];
+		int max[5];
+
 		// Boost parameters
 		int lastBoostTime[5];
 		int jointBoostThreshold[5];
@@ -26,20 +29,6 @@ class RobotArm
 		// Input/Output numbers
 		int motorNumber[5];
 		int encoderNumber[5];
-
-		// Minimum angles for each joints
-		int min[0] = 0;
-		int min[1] = 0;
-		int min[2] = 0;
-		int min[3] = 0;
-		int min[4] = 0;
-
-		// Maximum angles for each joints
-		int max[0] = 0;
-		int max[1] = 0;
-		int max[2] = 0;
-		int max[3] = 0;
-		int max[4] = 0;
 
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;

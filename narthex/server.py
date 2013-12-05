@@ -10,10 +10,10 @@ global server
 
 class PrometheusSerial:
 	__serialPort = '/dev/ttyUSB0'
-	__connection
+	#__connection
 	
 	def init(self):
-		self.__connection = serial.Serial(SERIAL_PORT, 115200, timeout=0.01)
+		self.__connection = serial.Serial(self.__serialPort, 115200, timeout=0.01)
 		self.__connection.open()
 	
 	def close(self):
@@ -35,7 +35,7 @@ class PrometheusSerial:
 		
 		data = self.getResponse().split()
 		
-		if data[0] == 'jointAngle' && data[1] == str(jointNumber):
+		if data[0] == 'jointAngle' and data[1] == str(jointNumber):
 			response = json.dumps({'jointNumber': jointNumber, 'angle': str(data[2])})
 		else:
 			response = json.dumps({'error': 'Bad data received from arm'})
@@ -47,7 +47,7 @@ class PrometheusSerial:
 		
 		data = self.getResponse().split()
 		
-		if data[0] == 'jointLimits' && data[1] == str(jointNumber):
+		if data[0] == 'jointLimits' and data[1] == str(jointNumber):
 			response = json.dumps({'jointNumber': jointNumber, 'min': str(data[2]), 'max': str(data[3])})
 		else:
 			response = json.dumps({'error': 'Bad data received from arm'})
@@ -58,6 +58,8 @@ class PrometheusSerial:
 class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 	def do_POST(self):
+		global comm
+
 		# Get the data
 		length = int(self.headers.getheader('content-length'))        
 		dataString = self.rfile.read(length)
@@ -77,27 +79,20 @@ class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 				# Check if we received a known command
 				
 				if self.path == "command/setJointAngle/":
-					# Call method
+					jointNumber = int(jsonData['jointNumber'])
+					angle = int(jsonData['angle'])
+
+					comm.setJointAngle(jointNumber, angle)
 				
 				elif self.path == "command/getJointAngle/":
 					jointNumber = int(jsonData['jointNumber'])
-					
-					# Create command to send to the Arduino
-					command = "getJointAngle " + str(jointNumber)
-					
-					# Send command to Arduino
-					comm.write(command)
-					
-					# Wait for response from the Arduino
-					serialData = ""
-					
-					while serialData == "":
-						serialData = comm.readline()
-					
-					# jointAngle [jointNumber] [angle]
+
+					comm.getJointAngle(jointNumber)
 				
 				elif self.path == "command/getJointLimits/":
 					jointNumber = int(jsonData['jointNumber'])
+
+					comm.getJointLimits(jointNumber)
 
 				else:
 					response = "Unknown command."
@@ -122,6 +117,9 @@ def main():
 	startServer()
 	
 	global server, comm
+
+	comm = PrometheusSerial()
+	comm.init();
 	
 	# Loop
 	try:
@@ -130,8 +128,8 @@ def main():
 			server.handle_request()
 			
 			# Handle serial communication
-			response = comm.readline()
-			print response + "\n"
+			#response = comm.readline()
+			#print response + "\n"
 			
 	except KeyboardInterrupt:
 		comm.close()

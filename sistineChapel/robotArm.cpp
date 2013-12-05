@@ -60,6 +60,20 @@ void RobotArm::setup()
 	{
 		this->derivativeGain[i] = 0.0;
 	}
+
+	// Minimum angles for each joints
+	min[0] = 0;
+	min[1] = 0;
+	min[2] = 0;
+	min[3] = 0;
+	min[4] = 0;
+
+	// Maximum angles for each joints
+	max[0] = 359;
+	max[1] = 359;
+	max[2] = 359;
+	max[3] = 359;
+	max[4] = 359;
 	
 	// Motor numbers
 	this->motorNumber[0] = 0;
@@ -432,14 +446,14 @@ void RobotArm::loop()
 	this->moveJointToSetPoint(0);
 
 	// Shoulder
-	this->moveJointToSetPoint(1);
+	//this->moveJointToSetPoint(1);
 
 	// Elbow
-	this->moveJointToSetPoint(2);
+	//this->moveJointToSetPoint(2);
 
 	// Wrist
-	this->moveJointToSetPoint(3);
+	//this->moveJointToSetPoint(3);
 
 	// Hand
-	this->moveJointToSetPoint(4);
+	//this->moveJointToSetPoint(4);
 }

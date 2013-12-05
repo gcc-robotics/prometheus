@@ -51,7 +51,7 @@ void CommandProcessor::getJointAngle(String command)
 	int jointNumber = command.substring(14, 15).toInt();
 	int angle = this->arm->getJointAngle(jointNumber);
 	
-	Serial.println("jointAngle [" + jointNumber + "] [" + angle + "]");
+	Serial.println("jointAngle " + String(jointNumber) + " " + String(angle));
 	
 }
 
@@ -61,5 +61,5 @@ void CommandProcessor::getJointLimits(String command)
 	int min = this->arm->getJointMinimum(jointNumber);
 	int max = this->arm->getJointMaximum(jointNumber);
 	
-	Serial.println("jointLimits [" + jointNumber + "] [" + min + "] [" + max + "]");
+	Serial.println("jointLimits " + String(jointNumber) + " " + String(min) + " " + String(max));
 }
