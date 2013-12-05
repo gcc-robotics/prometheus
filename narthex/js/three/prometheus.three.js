@@ -24,7 +24,7 @@ function RobotArm(viewModel)
 		// Camera
 		self.camera = new THREE.PerspectiveCamera(45, self.width / self.height, 0.1, 10000);
 		self.camera.position.z = self.cameraDistance;
-		self.camera.position.y = 300;
+		self.camera.position.y = 500;
 
 		// Scene
 		self.scene = new THREE.Scene();
@@ -80,10 +80,13 @@ function RobotArm(viewModel)
 		});
 
 		// Load STL Files
-		self.meshesToLoad = 2;
+		self.meshesToLoad = 5;
 		
+		self.loader.load('./models/base.stl');
 		self.loader.load('./models/torso.stl');
 		self.loader.load('./models/humerus.stl');
+		self.loader.load('./models/forearm-back.stl');
+		self.loader.load('./models/forearm-front.stl');
 	}
 	
 	self.startAutoResize = function()
@@ -118,8 +121,22 @@ function RobotArm(viewModel)
 	
 	self.loadingComplete = function()
 	{
-		// Add torso to scene
-		self.scene.add(self.mesh['torso']);
+		// Add base to scene
+		self.scene.add(self.mesh['base']);
+		
+		// Move the axis of rotation for the base to it's center
+		// Base Bounding box size: ~152.34, ~143.65, ~152.40
+		self.mesh['base'].geometry.computeBoundingBox();
+		var bb = self.mesh['base'].geometry.boundingBox;
+		var offset = new THREE.Vector3();
+		offset.addVectors(bb.min, bb.max);
+		offset.multiplyScalar(-0.5);
+		self.mesh['base'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 0, offset.z));
+		self.mesh['base'].geometry.computeBoundingBox();
+		
+		// Add torso to base
+		//self.scene.add(self.mesh['torso']);
+		self.mesh['base'].add(self.mesh['torso']);
 		
 		// Move the axis of rotation for the torso to the center of it's base
 		// Torso Bounding box size: ~152.36, ~325.48, ~152.40
@@ -128,7 +145,7 @@ function RobotArm(viewModel)
 		var offset = new THREE.Vector3();
 		offset.addVectors(bb.min, bb.max);
 		offset.multiplyScalar(-0.5);
-		self.mesh['torso'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 0, offset.z));
+		self.mesh['torso'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 144, offset.z));
 		self.mesh['torso'].geometry.computeBoundingBox();
 		
 		// Add humerus to torso
@@ -140,13 +157,41 @@ function RobotArm(viewModel)
 		self.mesh['humerus'].geometry.computeBoundingBox();
 		
 		// Move humerus to the correct position
-		// The axis for jointing the torso to the humerus is 281 up from the center of torso
-		self.mesh['humerus'].position.y = 281;
+		// The axis for jointing the torso to the humerus is 425 up from the center of base
+		self.mesh['humerus'].position.y = 425;
+		
+		// Add the back of the forearm to the humerus
+		self.mesh['humerus'].add(self.mesh['forearm-back']);
+		
+		// Move the axis of rotation for forearm-back
+		// forearm-back Bounding Box Size: ~88.90, ~88.90, ~215.12
+		self.mesh['forearm-back'].geometry.computeBoundingBox();
+		var bb = self.mesh['forearm-back'].geometry.boundingBox;
+		var offset = new THREE.Vector3();
+		offset.addVectors(bb.min, bb.max);
+		offset.multiplyScalar(-0.5);
+		self.mesh['forearm-back'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, offset.y, -195));
+		self.mesh['forearm-back'].geometry.computeBoundingBox();
+		
+		// Move forearm-back to the correct position
+		self.mesh['forearm-back'].position.y = -290;
+		self.mesh['forearm-back'].position.z = -136;
+		
+		// Add the front of the forearm to the forearm-back
+		self.mesh['forearm-back'].add(self.mesh['forearm-front']);
+		
+		// Move the axis of rotation for forearm-front
+		THREE.GeometryUtils.center(self.mesh['forearm-front'].geometry);
+		
+		// Move forearm-front to the correct position
+		self.mesh['forearm-front'].position.z = -266.5; // -265
+
 		
 		// Add lines for axes of rotation
-		self.addLine(self.scene, new THREE.Vector3(0, -75, 0), new THREE.Vector3(0, 75, 0));
-		self.addLine(self.mesh['torso'], new THREE.Vector3(100, 281, 0), new THREE.Vector3(-100, 281, 0));
+		self.addLine(self.scene, new THREE.Vector3(0, 69, 0), new THREE.Vector3(0, 219, 0));
+		self.addLine(self.mesh['torso'], new THREE.Vector3(100, 425, 0), new THREE.Vector3(-100, 425, 0));
 		self.addLine(self.mesh['humerus'], new THREE.Vector3(100, -290, -135), new THREE.Vector3(-100, -290, -138));
+		self.addLine(self.mesh['forearm-back'], new THREE.Vector3(0, 0, -238), new THREE.Vector3(0, 0, -138));
 
 		console.log('Loading complete!');
 		
@@ -161,12 +206,16 @@ function RobotArm(viewModel)
 		// Move meshes according to the range inputs
 		self.mesh['torso'].rotation.y = self.viewModel.joints()[0].setPoint() / 180 * Math.PI;
 		self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].setPoint() / 180 * Math.PI;
+		self.mesh['forearm-back'].rotation.x = self.viewModel.joints()[2].setPoint() / 180 * Math.PI;
+		self.mesh['forearm-front'].rotation.z = self.viewModel.joints()[3].setPoint() / 180 * Math.PI;
 		
 		// Rotate camera around 0,300,0
 		self.cameraIterator += 0.01;
 		self.camera.position.x = Math.sin(self.cameraIterator) * self.cameraDistance;
 		self.camera.position.z = Math.cos(self.cameraIterator) * self.cameraDistance;
-		self.camera.lookAt(new THREE.Vector3(0, 300, 0));
+		//self.camera.position.x = Math.sin(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
+		//self.camera.position.z = Math.cos(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
+		self.camera.lookAt(new THREE.Vector3(0, 300, 0)); // 0, 300, 0
 		
 		self.renderer.render(self.scene, self.camera);
 	}

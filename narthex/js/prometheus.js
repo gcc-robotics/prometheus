@@ -262,7 +262,7 @@ vm.addJoint({
 	title: "Base",
 	jointNumber: 0,
 	min: 0,
-	max: 359,
+	max: 360,
 	setPoint: 0
 });
 
@@ -277,9 +277,9 @@ vm.addJoint({
 vm.addJoint({
 	title: "Elbow",
 	jointNumber: 2,
-	min: 0,
-	max: 359,
-	setPoint: 180
+	min: 180,
+	max: 360,
+	setPoint: 360
 });
 
 vm.addJoint({
