@@ -13,7 +13,8 @@ class PrometheusSerial:
 	#__connection
 	
 	def init(self):
-		self.__connection = serial.Serial(self.__serialPort, 115200, timeout=0.01)
+		self.__connection = serial.Serial(self.__serialPort, 9600, timeout=0.01) # 115200
+		#self.__connection.stopbits = 2
 		self.__connection.open()
 	
 	def close(self):
@@ -23,17 +24,21 @@ class PrometheusSerial:
 		response = ""
 		
 		while response == "":
-			response = self.__connection.readline()
+			response = self.__connection.read(128) # readLine()
 		
 		return str(response)
 	
 	def setJointAngle(self, jointNumber, angle):
-		self.__connection.write("setJointAngle " + str(jointNumber) + " " + str(setPoint))
+		self.__connection.write("setJointAngle " + str(jointNumber) + " " + str(angle))
+
+		return json.dumps({'msg': 'Joint ' + str(jointNumber) + " set to " + str(angle)})
 		
 	def getJointAngle(self, jointNumber):
 		self.__connection.write("getJointAngle " + str(jointNumber))
 		
 		data = self.getResponse().split()
+
+		print data
 		
 		if data[0] == 'jointAngle' and data[1] == str(jointNumber):
 			response = json.dumps({'jointNumber': jointNumber, 'angle': str(data[2])})
@@ -46,6 +51,8 @@ class PrometheusSerial:
 		self.__connection.write("getJointLimits  " + str(jointNumber))
 		
 		data = self.getResponse().split()
+
+		print data
 		
 		if data[0] == 'jointLimits' and data[1] == str(jointNumber):
 			response = json.dumps({'jointNumber': jointNumber, 'min': str(data[2]), 'max': str(data[3])})
@@ -70,34 +77,35 @@ class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			
 		except:
 			# The JSON Parser threw an exception
-			response = "Failed to parse JSON data."
+			response = json.dumps({'error': 'Failed to parse JSON data.'})
 			
 		else:
 			# We successfully parsed the JSON data
 			
 			if jsonData != {}:
 				# Check if we received a known command
+				print "POST path: " + self.path
 				
-				if self.path == "command/setJointAngle/":
+				if self.path == "/command/setJointAngle/":
 					jointNumber = int(jsonData['jointNumber'])
 					angle = int(jsonData['angle'])
 
-					comm.setJointAngle(jointNumber, angle)
+					response = comm.setJointAngle(jointNumber, angle)
 				
-				elif self.path == "command/getJointAngle/":
+				elif self.path == "/command/getJointAngle/":
 					jointNumber = int(jsonData['jointNumber'])
 
-					comm.getJointAngle(jointNumber)
+					response = comm.getJointAngle(jointNumber)
 				
-				elif self.path == "command/getJointLimits/":
+				elif self.path == "/command/getJointLimits/":
 					jointNumber = int(jsonData['jointNumber'])
 
-					comm.getJointLimits(jointNumber)
+					response = comm.getJointLimits(jointNumber)
 
 				else:
-					response = "Unknown command."
+					response = json.dumps({'error': 'Unknown command.'})
 			else:
-				response = "No data received. Please send data as JSON."
+				response = json.dumps({'error': 'No data received. Please send data as JSON.'})
 
 		# Send response back to the web control interface
 		self.wfile.write(response)
@@ -113,13 +121,15 @@ def startServer():
 	
 
 def main():
+	global server, comm
+
 	# Setup
 	startServer()
-	
-	global server, comm
 
 	comm = PrometheusSerial()
 	comm.init();
+
+	print "Prometheus Remote Control Server Started!"
 	
 	# Loop
 	try:

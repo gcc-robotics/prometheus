@@ -110,18 +110,22 @@ function Joint(data)
 	{		
 		if(vm.enabled())
 		{
-			console.log("Joint " + self.jointNumber() + " setPoint: " + self.setPoint());
+			console.log("Joint " + self.jointNumber() + " angle: " + self.setPoint());
 			
 			$.ajax("/command/setJointAngle/", {
 				data: ko.toJSON(
 				{
 					jointNumber: self.jointNumber(), 
-					setPoint: self.setPoint()
+					angle: self.setPoint()
 				}),
 				type: "post", contentType: "application/json",
 				success: function(result)
 				{
 					console.log(JSON.parse(result));
+				},
+				error: function(result)
+				{
+					console.warn(result);
 				}
 			});
 		}
@@ -201,9 +205,10 @@ function PrometheusViewModel()
 				type: "post", contentType: "application/json",
 				success: function(result)
 				{
-					var data = JSON.parse(result);
-					
-					self.commandHistory()[index].response(data.response);
+					console.log(result);
+					//var data = JSON.parse(result);
+
+					self.commandHistory()[index].response(result);
 					self.commandHistory()[index].duration(Date.now() - self.commandHistory()[index].startTime);
 				},
 				error: function(result)
