@@ -24,7 +24,7 @@ class PrometheusSerial:
 		response = ""
 		
 		while response == "":
-			response = self.__connection.read(128) # readLine()
+			response = self.__connection.readLine()
 		
 		return str(response)
 	
@@ -50,9 +50,11 @@ class PrometheusSerial:
 	def getJointLimits(self, jointNumber):
 		self.__connection.write("getJointLimits  " + str(jointNumber))
 		
-		data = self.getResponse().split()
+		response = self.getResponse()
 
-		print data
+		print "Data from Arduino: " + response
+
+		data = response.split()
 		
 		if data[0] == 'jointLimits' and data[1] == str(jointNumber):
 			response = json.dumps({'jointNumber': jointNumber, 'min': str(data[2]), 'max': str(data[3])})
@@ -71,6 +73,9 @@ class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 		length = int(self.headers.getheader('content-length'))        
 		dataString = self.rfile.read(length)
 		jsonData = {}
+
+		print "POST request: " + self.path
+		print "Request Data: " + dataString
 		
 		try:
 			jsonData = json.loads(dataString)
@@ -84,8 +89,6 @@ class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			
 			if jsonData != {}:
 				# Check if we received a known command
-				print "POST path: " + self.path
-				
 				if self.path == "/command/setJointAngle/":
 					jointNumber = int(jsonData['jointNumber'])
 					angle = int(jsonData['angle'])
@@ -107,6 +110,8 @@ class requestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			else:
 				response = json.dumps({'error': 'No data received. Please send data as JSON.'})
 
+		print "Response: " + response
+
 		# Send response back to the web control interface
 		self.wfile.write(response)
 
@@ -118,7 +123,7 @@ def startServer():
 	server = BaseHTTPServer.HTTPServer(server_address, requestHandler)
 	server.timeout = 0.1
 
-	
+
 
 def main():
 	global server, comm
