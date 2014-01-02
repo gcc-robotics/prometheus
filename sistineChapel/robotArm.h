@@ -7,24 +7,10 @@
 class RobotArm 
 {
 	private:
-		// PID Parameters
-		float previousError[5];
-		unsigned long lastPidTime[5];
 		float setPoint[5];
-		float integralTerm[5];
-
-		float proprotionalGain[5];
-		float integralGain[5];
-		float derivativeGain[5];
 
 		int min[5];
 		int max[5];
-
-		// Boost parameters
-		int lastBoostTime[5];
-		int jointBoostThreshold[5];
-		int lastMotorSpeed[5];
-		int boostLength;
 		
 		// Input/Output numbers
 		int motorNumber[5];
@@ -40,13 +26,6 @@ class RobotArm
 		 * return float between 0 to 180
 		 */
 		float getAngleError(float targetAngle, float currentAngle);
-
-		/* Need fix
-		 * 
-		 *
-		 *
-		 */
-		float calculateMotorSpeed(int jointNumber, float angleError);
 
 		/* Contains the logic to actually move a joint to the desired angle
 		 * input jointNumber = 0 to 4
@@ -79,33 +58,12 @@ class RobotArm
 		 */
 		void setup();
 
-		/* Get the last pid time for the joint
-		 * input inputNumber = 0 to 4
-		 * return int between 
-		 */
-		int getLastPidTime(int inputNumber);
-
-		/* Get the last angle error for the joint
-		 * input jointNumber = 0 to 4
-		 * return float between
-		 */
-		float getLastError(int jointNumber);
-
 		/* Set the motor speed for the provided joint and do speed boosts for speeds below the boost threshold
 		 * input jointNumber = 0 to 4
 		 * input speed = 
 		 * return void
 		 */
 		void setJointMotorSpeed(int jointNumber, int speed);
-
-		/* Set the PID Gains for the joint
-		 * input jointNumber = 0 to 4
-		 * input PGain = 
-		 * input IGain = 
-		 * input DGain = 
-		 * return void
-		 */
-		void setPidGains(int jointNumber, float PGain, float IGain, float DGain);
 
 		/* Set joint setPoint
 		 * input jointNumber = 0 to 4

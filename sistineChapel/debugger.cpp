@@ -190,54 +190,6 @@ void Debugger::monitorPotentiometerValue(int userInput)
 	}
 }
 
-// Let the user change the PID gains and monitor the joint
-void Debugger::tuneJointPid(int userInput)
-{
-	// Get the values of the pots
-	float PGain = this->mux->readPotentiometer(6);
-	float IGain = this->mux->readPotentiometer(7);
-	float DGain = this->mux->readPotentiometer(8);
-
-	// Print the potValue
-	Serial.print("-1 to stop, 1 through 5 to select joint, 6 for random angle, Button on board to set the gains, Joint: ");
-	Serial.print(this->debugJointNumber);
-	Serial.print(" P: ");
-	Serial.print(PGain);
-	Serial.print(" I: ");
-	Serial.print(IGain);
-	Serial.print(" D: ");
-	Serial.print(DGain);
-	Serial.print(" Error: ");
-	Serial.println(this->arm->getLastError(this->debugJointNumber - 1));
-
-	// Check if the button is pressed
-	if(digitalRead(10) == HIGH)
-	{
-		// Set the gains for the current joint
-		this->arm->setPidGains(this->debugJointNumber - 1, PGain, IGain, DGain);
-		Serial.print("Setting PID gains for joint ");
-		Serial.print(this->debugJointNumber);
-		Serial.println(".");
-	}
-
-	if(userInput >= 1 && userInput <= 5)
-	{
-		// User wants to change joint number
-		this->debugJointNumber = userInput;
-	}
-	else if(userInput == 6)
-	{
-		this->debugAngle = fmod(this->debugAngle + 180, 361);
-
-		this->arm->setJointAngle(this->debugJointNumber - 1, this->debugAngle);
-	}
-	// The user wants to stop the monitoring
-	else if(userInput == -1)
-	{
-		// Return back to the default state
-		this->debuggerState = 0;
-	}
-}
 
 // Loop function for the debugger
 // Run in the arduino loop function
@@ -268,10 +220,6 @@ void Debugger::loop()
 			this->monitorPotentiometerValue(userInput);
 			break;
 
-		case 6:
-			this->tuneJointPid(userInput);
-			break;
-
 		// The default debugger state
 		default:
 		case 0:
@@ -290,15 +238,10 @@ void Debugger::loop()
 			{
 				this->debuggerState = 3;
 			}
-			// Check if the user wants to tune PIDs
-			else if(userInput == 4)
-			{
-				this->debuggerState = 6;
-			}
 			// Print the menu message
 			else
 			{
-				Serial.println("Input 1 to show the status of the digital input, 2 to set Joint Angle, 3 to select mux input, 4 for PID tunning.");
+				Serial.println("Input 1 to show the status of the digital input, 2 to set Joint Angle, 3 to read mux inputs.");
 			}
 			break;
 	}

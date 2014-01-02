@@ -15,50 +15,13 @@ RobotArm::RobotArm()
 
 void RobotArm::setup()
 {
-	// PID Parameters
 	const int numMotors = 5;
-
-	// Previous error
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->previousError[i] = 0.0;
-	}
-
-	// lastPidTime
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->lastPidTime[i] = 0.0;
-	}
 	
 	// setPoint
 	for(int i = 0; i < numMotors; i++)
 	{
 		this->setPoint[i] = 0.0;
 		this->setJointAngle(i, 0);
-	}
-
-	// integralTerm
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->integralTerm[i] = 0.0;
-	}
-
-	// proprotionalGain
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->proprotionalGain[i] = 0.75;
-	}
-
-	// integralGain
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->integralGain[i] = 0.0;
-	}
-
-	// derivativeGain
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->derivativeGain[i] = 0.0;
 	}
 
 	// Minimum angles for each joints
@@ -89,28 +52,6 @@ void RobotArm::setup()
 	this->encoderNumber[3] = 3;
 	this->encoderNumber[4] = 4;
 
-	// Boost parameters
-	// lastBoostTime
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->lastBoostTime[i] = 0;
-	}
-
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->lastMotorSpeed[i] = 0;
-	}
-
-	// Boost length in milliseconds
-	this->boostLength = 15;
-
-	// Boost thresholds
-	this->jointBoostThreshold[0] = 0;
-	this->jointBoostThreshold[1] = 0;
-	this->jointBoostThreshold[2] = 0;
-	this->jointBoostThreshold[3] = 0;
-	this->jointBoostThreshold[4] = 0;
-
 	this->mux = Multiplexer();
 	this->motor = MotorController();
 
@@ -127,22 +68,6 @@ MotorController* RobotArm::getMotorController()
 	return &(this->motor);
 }
 
-// Get the last angle error for the joint
-float RobotArm::getLastError(int jointNumber)
-{
-	jointNumber = this->clamp(jointNumber, 0, 4);
-
-	return this->previousError[jointNumber];
-}
-
-// Get the last pid time for the joint
-int RobotArm::getLastPidTime(int jointNumber)
-{
-	jointNumber = this->clamp(jointNumber, 0, 4);
-
-	return this->lastPidTime[jointNumber];
-}
-
 // Set the motor speed for the provided joint and 
 // do speed boosts for speeds below the boost threshold
 void RobotArm::setJointMotorSpeed(int jointNumber, int speed)
@@ -151,37 +76,8 @@ void RobotArm::setJointMotorSpeed(int jointNumber, int speed)
 	jointNumber = this->clamp(jointNumber, 0, 4);
 	speed = this->clamp(speed, -100, 100);
 
-	// Get current runtime
-	unsigned long timeNow = millis();
-
-	// Store desired motor speed
-	int desiredMotorSpeed = speed;
-
-	// Check if we should start a boost
-	if(abs(desiredMotorSpeed) < this->jointBoostThreshold[jointNumber]
-	   && this->lastMotorSpeed[jointNumber] < abs(desiredMotorSpeed)
-	   && this->jointBoostThreshold[jointNumber] > 0)
-	{
-		this->lastBoostTime[jointNumber] = timeNow;
-	}
-
-	// Check if we should boost
-	if((this->lastBoostTime[jointNumber] + this->boostLength) > timeNow
-	   && this->jointBoostThreshold[jointNumber] > 0)
-	{
-		if(desiredMotorSpeed < 0)
-		{
-			speed = -25;
-		}
-		else
-		{
-			speed = 25;
-		}
-	}
-
+	// Set motor speed
 	this->motor.speed(this->motorNumber[jointNumber], speed);
-
-	this->lastMotorSpeed[jointNumber] = desiredMotorSpeed;
 }
 
 // Clamps the input between min and max
@@ -214,20 +110,6 @@ int RobotArm::clamp(int input, int min, int max)
 	}
 
 	return input;
-}
-
-// Set the PID Gains for the joint
-void RobotArm::setPidGains(int jointNumber, float PGain, float IGain, float DGain)
-{
-	// Clamp the gains
-	PGain = this->clamp(PGain);
-	IGain = this->clamp(IGain);
-	DGain = this->clamp(DGain);
-
-	// Set the gains
-	this->proprotionalGain[jointNumber] = PGain;
-	this->integralGain[jointNumber] = IGain;
-	this->derivativeGain[jointNumber] = DGain;
 }
 
 float RobotArm::getAngleError(float targetAngle, float currentAngle)
@@ -270,71 +152,6 @@ float RobotArm::getAngleError(float targetAngle, float currentAngle)
 	return fmod(angleError, 360);
 }
 
-float RobotArm::calculateMotorSpeed(int jointNumber, float angleError)
-{
-	//Serial.print("Joint number: ");
-	//Serial.print(jointNumber);
-
-	//Serial.print(" setPoint: ");
-	//Serial.print(this->setPoint[jointNumber]);
-
-	// Calculate the Proportional Term
-	float proportionalTerm = abs(angleError) * this->proprotionalGain[jointNumber];
-
-	//Serial.print(" PTerm: ");
-	//Serial.print(proportionalTerm);
-
-	// Get the time interval
-	unsigned long timeNow = millis();
-	unsigned int timeDifference = (timeNow - this->lastPidTime[jointNumber]) / 1000.0;
-
-	//Serial.print(" timeDifference: ");
-	//Serial.print(timeDifference);
-
-	// Store the current time as previous
-	this->lastPidTime[jointNumber] = timeNow;
-
-	// Calculate the Integral Term
-	this->integralTerm[jointNumber] += timeDifference * abs(angleError) * this->integralGain[jointNumber];
-
-	// Zero out the integralTerm when the angle error is small
-	if(angleError < 0.5)
-	{
-		this->integralTerm[jointNumber] = 0;
-	}
-
-	//Serial.print(" integralTerm: ");
-	//Serial.print(this->integralTerm[jointNumber]);
-
-	// Calculate the Derivate Term
-	float derivativeTerm = (abs(this->previousError[jointNumber]) - abs(angleError)) * this->derivativeGain[jointNumber] / timeDifference;
-
-	//Serial.print(" derivativeTerm: ");
-	//Serial.print(derivativeTerm);
-
-	// Store current angle error as previous angle error
-	this->previousError[jointNumber] = angleError;
-
-	//Serial.print(" previousError: ");
-	//Serial.print(this->getLastError(jointNumber));
-
-	float motorSpeed = proportionalTerm + this->integralTerm[jointNumber] + derivativeTerm;
-
-	if(motorSpeed > 100)
-	{
-		motorSpeed = 100;
-	}
-	else if(motorSpeed < 0)
-	{
-		motorSpeed = 0;
-	}
-
-	//Serial.print(" motorSpeed: ");
-	//Serial.print(motorSpeed);
-
-	return motorSpeed;
-}
-
 bool RobotArm::moveJointToSetPoint(int jointNumber)
 {
 	// Get the current angle
@@ -347,20 +164,14 @@ bool RobotArm::moveJointToSetPoint(int jointNumber)
 	//Serial.print(angleError);
 
 	// Get the motor speed
-	int motorSpeed = this->calculateMotorSpeed(jointNumber, angleError);
+	int motorSpeed = angleError;
 
 	//Serial.print(" currentAngle: ");
 	//Serial.println(currentAngle);
 
-	// Move in the right direction
-	if(angleError > 0)
-	{
-		this->setJointMotorSpeed(jointNumber, motorSpeed);
-	}
-	else
-	{
-		this->setJointMotorSpeed(jointNumber, -motorSpeed);
-	}
+	// Set motor speed
+	this->setJointMotorSpeed(jointNumber, motorSpeed);
+
 }
 
 void RobotArm::setJointAngle(int jointNumber, float angle)
@@ -373,26 +184,6 @@ void RobotArm::setJointAngle(int jointNumber, float angle)
 	if(angle < 0)
 	{
 		angle = 0;
-	}
-
-	// Per joint angle limits
-	switch(jointNumber)
-	{
-		// Elbow angle limits
-		case 2:
-			if(angle < 121)
-			{
-				angle = 121;
-			}
-			else if(angle > 221)
-			{
-				angle = 221;
-			}
-			break;
-
-		default:
-			// Do nothing
-			break;
 	}
 
 	angle = fmod(angle, 360);
@@ -446,14 +237,14 @@ void RobotArm::loop()
 	this->moveJointToSetPoint(0);
 
 	// Shoulder
-	//this->moveJointToSetPoint(1);
+	this->moveJointToSetPoint(1);
 
 	// Elbow
-	//this->moveJointToSetPoint(2);
+	this->moveJointToSetPoint(2);
 
 	// Wrist
-	//this->moveJointToSetPoint(3);
+	this->moveJointToSetPoint(3);
 
 	// Hand
-	//this->moveJointToSetPoint(4);
+	this->moveJointToSetPoint(4);
 }

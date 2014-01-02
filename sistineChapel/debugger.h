@@ -51,9 +51,6 @@ class Debugger
 		// Monitor a potentiometer value
 		void monitorPotentiometerValue(int userInput);
 
-		// Let the user change the PID gains and monitor the joint
-		void tuneJointPid(int userInput);
-
 	public:
 		// Constructor
 		Debugger();
