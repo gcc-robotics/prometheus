@@ -11,7 +11,7 @@ Debugger debug = Debugger();
 CommandProcessor commandProcessor = CommandProcessor();
 
 // Enable or disable debugger
-boolean runDebugger = true;
+boolean runDebugger = false;
 
 void setup() 
 { 
@@ -35,7 +35,7 @@ void setup()
 void loop() 
 {
 	arm.loop();
-	//commandProcessor.loop();
+	commandProcessor.loop();
 
 	if(runDebugger)
 	{

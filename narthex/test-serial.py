@@ -7,26 +7,27 @@ class PrometheusSerial:
 	#__connection
 	
 	def init(self):
-		self.__connection = serial.Serial(self.__serialPort, 9600, timeout=0.01) # 115200
+		self.__connection = serial.Serial(self.__serialPort, 115200, timeout=0.01) # 115200
 		#self.__connection.stopbits = 2
 		self.__connection.open()
 
 		# Throw away first data
-		while inWaiting() > 0:
-			self.__connection.readLine();
+		while self.__connection.inWaiting() > 0:
+			self.__connection.readLine()
 	
 	def close(self):
 		self.__connection.close()
 
 	def iterate(self):
-		if inWaiting() > 0:
+		if self.__connection.inWaiting() > 0:
 			# We have data
-			response = self.__connection.readLine();
+			#response = self.__connection.readLine()
+			response = self.__connection.read(100)
 
 			print "Data from Arduino: " + response
-			dataSent = False
+			self.dataSent = False
 
-		elif dataSent == True:
+		elif self.dataSent == True:
 			# No data get user input and not waiting for a response
 			userInput = raw_input("Command: ")
 			self.__connection.write(userInput)
