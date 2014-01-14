@@ -21,17 +21,20 @@ class PrometheusSerial:
 	def iterate(self):
 		if self.__connection.inWaiting() > 0:
 			# We have data
-			#response = self.__connection.readLine()
-			response = self.__connection.read(100)
+			response = self.__connection.readline()
+			#response = self.__connection.read(100)
 
 			print "Data from Arduino: " + response
 			self.dataSent = False
 
-		elif self.dataSent == True:
+		elif self.dataSent == False:
 			# No data get user input and not waiting for a response
 			userInput = raw_input("Command: ")
 			self.__connection.write(userInput)
 			dataSent = True
+
+		else:
+			print "Waiting for response"
 
 	
 	def getResponse(self):
