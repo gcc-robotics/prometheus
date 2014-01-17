@@ -17,27 +17,6 @@ void RobotArm::setup()
 {
 	const int numMotors = 5;
 	
-	// setPoint
-	for(int i = 0; i < numMotors; i++)
-	{
-		this->setPoint[i] = 0.0;
-		this->setJointAngle(i, 0);
-	}
-
-	// Minimum angles for each joints
-	min[0] = 0;
-	min[1] = 0;
-	min[2] = 0;
-	min[3] = 0;
-	min[4] = 0;
-
-	// Maximum angles for each joints
-	max[0] = 359;
-	max[1] = 359;
-	max[2] = 359;
-	max[3] = 359;
-	max[4] = 359;
-	
 	// Motor numbers
 	this->motorNumber[0] = 0;
 	this->motorNumber[1] = 1;
@@ -54,6 +33,7 @@ void RobotArm::setup()
 
 	this->mux = Multiplexer();
 	this->motor = MotorController();
+	this->motorSpeed = PMotorSpeed();
 
 	this->motor.setup();
 }
@@ -68,127 +48,25 @@ MotorController* RobotArm::getMotorController()
 	return &(this->motor);
 }
 
-// Set the motor speed for the provided joint and 
-// do speed boosts for speeds below the boost threshold
-void RobotArm::setJointMotorSpeed(int jointNumber, int speed)
-{
-	// Clamp input
-	jointNumber = this->clamp(jointNumber, 0, 4);
-	speed = this->clamp(speed, -100, 100);
-
-	// Set motor speed
-	this->motor.speed(this->motorNumber[jointNumber], speed);
-}
-
-// Clamps the input between min and max
-float RobotArm::clamp(float input, float min, float max)
-{
-	if(input < min)
-	{
-		input = min;
-	}
-
-	if(input > max)
-	{
-		input = max;
-	}
-
-	return input;
-}
-
-// Clamps the input between min and max
-int RobotArm::clamp(int input, int min, int max)
-{
-	if(input < min)
-	{
-		input = min;
-	}
-
-	if(input > max)
-	{
-		input = max;
-	}
-
-	return input;
-}
-
-float RobotArm::getAngleError(float targetAngle, float currentAngle)
-{
-	// Limit target angle between 0 and 360
-	if(targetAngle < 0)
-	{
-		targetAngle = 0;
-	}
-
-	targetAngle = fmod(targetAngle, 360);
-
-	// Shift target angle to -180 to 180
-	targetAngle -= 180.0;
-
-	// Limit current angle between 0 and 360
-	if(currentAngle < 0)
-	{
-		currentAngle = 0;
-	}
-
-	currentAngle = fmod(currentAngle, 360);
-
-	// Shift current angle to -180 to 180
-	currentAngle -= 180.0;
-
-	// Get the smallest angle error
-	// Test the logic at: http://jsfiddle.net/frLFG/3/
-	float angleError = targetAngle - currentAngle;
-
-	if(angleError > 180)
-	{
-		angleError -= 360.0;
-	}
-	else if(angleError < -180)
-	{
-		angleError += 360.0;
-	}
-
-	return fmod(angleError, 360);
-}
-
 bool RobotArm::moveJointToSetPoint(int jointNumber)
 {
 	// Get the current angle
 	float currentAngle = this->mux.readEncoder(this->encoderNumber[jointNumber]);
 
-	// Get the angle error
-	float angleError = this->getAngleError(this->setPoint[jointNumber], currentAngle);
-
 	//Serial.print("Angle Error: ");
 	//Serial.print(angleError);
 
 	// Get the motor speed
-	int motorSpeed = angleError;
+	int motorSpeed = this->motorSpeed.calculate(jointNumber, currentAngle);
 
 	//Serial.print(" currentAngle: ");
 	//Serial.println(currentAngle);
-
-	// Set motor speed
-	this->setJointMotorSpeed(jointNumber, motorSpeed);
-
+	this->motor.speed(jointNumber, motorSpeed);
 }
 
 void RobotArm::setJointAngle(int jointNumber, float angle)
 {
-	if(jointNumber < 0 || jointNumber > 5)
-	{
-		return;
-	}
-
-	if(angle < 0)
-	{
-		angle = 0;
-	}
-
-	angle = fmod(angle, 360);
-
-	this->setPoint[jointNumber] = angle;
+	this->motorSpeed.setSetPoint(jointNumber, angle);
 }
 
 int RobotArm::getJointAngle(int jointNumber)
@@ -196,14 +74,14 @@ int RobotArm::getJointAngle(int jointNumber)
 	return this->mux.readEncoder(this->encoderNumber[jointNumber]);
 }
 
-int RobotArm::getJointMinimum(int jointNumber)
+float RobotArm::getJointMinimum(int jointNumber)
 {
-	return min[jointNumber];
+	return this->motorSpeed.getJointMin(jointNumber);
 }
 
-int RobotArm::getJointMaximum(int jointNumber)
+float RobotArm::getJointMaximum(int jointNumber)
 {
-	return max[jointNumber];
+	return this->motorSpeed.getJointMax(jointNumber);
 }
 
 void RobotArm::waist(float targetAngle)

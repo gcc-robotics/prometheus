@@ -12,11 +12,12 @@ class PMotorSpeed
 
 	public:
 		PMotorSpeed();
-		int calculate(int motorNumber, float currentAngleError);
-		void setSetPoint(int motorNumber, float setPoint);
-		void setProportionalGain(int motorNumber, float proportionalgain);
-		float getJointMin(int motorNumber);
-		float getJointMax(int motorNumber);
+		int calculate(int jointNumber, float currentAngle);
+		void setSetPoint(int jointNumber, float setPoint);
+		void setProportionalGain(int jointNumber, float proportionalgain);
+		float getJointMin(int jointNumber);
+		float getJointMax(int jointNumber);
+		float getAngleError(int jointNumber, float currentAngle);
 };
 
 #endif

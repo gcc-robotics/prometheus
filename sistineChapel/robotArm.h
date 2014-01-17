@@ -1,5 +1,6 @@
 #include "motorController.h"
 #include "multiplexer.h"
+#include "PMotorSpeed.h"
 
 #ifndef ROBOTARM_H
 #define ROBOTARM_H
@@ -7,11 +8,6 @@
 class RobotArm 
 {
 	private:
-		float setPoint[5];
-
-		int min[5];
-		int max[5];
-		
 		// Input/Output numbers
 		int motorNumber[5];
 		int encoderNumber[5];
@@ -19,31 +15,13 @@ class RobotArm
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;
 		Multiplexer mux;
-
-		/* Calculates the smallest angle difference between the target angle and current angle
-		 * input targetAngle = 0 to 359
-		 * input currentAngle = 0 to 359
-		 * return float between 0 to 180
-		 */
-		float getAngleError(float targetAngle, float currentAngle);
+		PMotorSpeed motorSpeed;
 
 		/* Contains the logic to actually move a joint to the desired angle
 		 * input jointNumber = 0 to 4
 		 * return boolean true or false
 		 */
 		bool moveJointToSetPoint(int jointNumber);
-
-		/* Clamps the input between minimum and maximum
-		 * input input any float 
-		 * return float between 0.0 and 1.0
-		 */
-		float clamp(float input, float min = 0.0, float max = 1.0);
-
-		/* Clamps the input between minimum and maximum
-		 * input input any integer 
-		 * return int between 0 and 4
-		 */	
-		int clamp(int input, int min = 0, int max = 4);
 
 	public:	
 		// Constructor
@@ -57,13 +35,6 @@ class RobotArm
 		 * return void
 		 */
 		void setup();
-
-		/* Set the motor speed for the provided joint and do speed boosts for speeds below the boost threshold
-		 * input jointNumber = 0 to 4
-		 * input speed = 
-		 * return void
-		 */
-		void setJointMotorSpeed(int jointNumber, int speed);
 
 		/* Set joint setPoint
 		 * input jointNumber = 0 to 4
@@ -82,13 +53,13 @@ class RobotArm
 		 * input jointNumber = 0 to 4
 		 * return int between 0 to 359
 		 */
-		int getJointMinimum(int jointNumber);
+		float getJointMinimum(int jointNumber);
 
 		/* Gets the maximum angle value for provided joint to limit the movements
 		 * input jointNumber = 0 to 4
 		 * return int between 0 to 359
 		 */
-		int getJointMaximum(int jointNumber);
+		float getJointMaximum(int jointNumber);
 
 		/* Move the waist the the provided angle
 		 * input degrees = 0.0 to 359.9
