@@ -1,14 +1,15 @@
 #import <Arduino.h>
 #include <math.h>
 #include "PMotorSpeed.h"
-#include "helperFunction.cpp"
 
 PMotorSpeed::PMotorSpeed()
 {
+	this->numMotors = 5;
+
 	for(int i = 0; i < this->numMotors; i++)
 	{
 		this->setPoint[i] = 0.0;
-		this->setPoint(i, 0);
+		this->setSetPoint(i, 0);
 	}
 
 	proportionalgain[0] = 1.0;
@@ -30,25 +31,25 @@ PMotorSpeed::PMotorSpeed()
 	max[4] = 359.9;
 }
 
-void PMotorSpeed::setProportionalGain(int motorNumber, float proportionalgain)
+void PMotorSpeed::setProportionalGain(int motorNumber, float newproportionalgain)
 {
-	motorNumber = clamp(motorNumber, 0, 5);
-	proportionalgain = clamp(proportionalgain, 0.0, 5.0);
+	motorNumber = constrain(motorNumber, 0, 5);
+	newproportionalgain = constrain(newproportionalgain, 0.0, 5.0);
 
-	proportionalgain[motorNumber] = proportionalgain;
+	this->proportionalgain[motorNumber] = newproportionalgain;
 }
 
 int PMotorSpeed::calculate(int motorNumber, float currentAngleError)
 {
-	motorNumber = clamp(motorNumber, 0, 5);
-	currentAngleError = clamp(currentAngleError, -360.0, 360.0);
+	motorNumber = constrain(motorNumber, 0, 5);
+	currentAngleError = constrain(currentAngleError, -360.0, 360.0);
 
 	return currentAngleError * proportionalgain[motorNumber];
 }
 
-void PMotorSpeed::setPoint(int motorNumber, float setPoint)
+void PMotorSpeed::setSetPoint(int motorNumber, float setPoint)
 {
-	motorNumber = clamp(motorNumber, 0, 5);
+	motorNumber = constrain(motorNumber, 0, 5);
 	
 	if(setPoint < 0.0)
 	{
@@ -71,12 +72,12 @@ void PMotorSpeed::setPoint(int motorNumber, float setPoint)
 
 float PMotorSpeed::getJointMin(int motorNumber)
 {
-	motorNumber = clamp(motorNumber, 0, 5);
+	motorNumber = constrain(motorNumber, 0, 5);
 	return min[motorNumber];
 }
 
 float PMotorSpeed::getJointMax(int motorNumber)
 {
-	motorNumber = clamp(motorNumber, 0, 5);
-	return max[motorNumber]
+	motorNumber = constrain(motorNumber, 0, 5);
+	return max[motorNumber];
 }
