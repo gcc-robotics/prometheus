@@ -12,11 +12,11 @@ PMotorSpeed::PMotorSpeed()
 		this->setSetPoint(i, 0);
 	}
 
-	proportionalgain[0] = 1.0;
-	proportionalgain[1] = 1.0;
-	proportionalgain[2] = 1.0;
-	proportionalgain[3] = 1.0;
-	proportionalgain[4] = 1.0;
+	proportionalGain[0] = 1.0;
+	proportionalGain[1] = 1.0;
+	proportionalGain[2] = 1.0;
+	proportionalGain[3] = 1.0;
+	proportionalGain[4] = 1.0;
 
 	min[0] = 0.0;
 	min[1] = 0.0;
@@ -36,7 +36,7 @@ void PMotorSpeed::setProportionalGain(int jointNumber, float newproportionalgain
 	jointNumber = constrain(jointNumber, 0, 5);
 	newproportionalgain = constrain(newproportionalgain, 0.0, 5.0);
 
-	this->proportionalgain[jointNumber] = newproportionalgain;
+	this->proportionalGain[jointNumber] = newproportionalgain;
 }
 
 int PMotorSpeed::calculate(int jointNumber, float currentAngle)
@@ -46,7 +46,7 @@ int PMotorSpeed::calculate(int jointNumber, float currentAngle)
 
 	float currentAngleError = this->getAngleError(jointNumber, currentAngle);
 
-	return currentAngleError * proportionalgain[jointNumber];
+	return currentAngleError * proportionalGain[jointNumber];
 }
 
 void PMotorSpeed::setSetPoint(int jointNumber, float setPoint)

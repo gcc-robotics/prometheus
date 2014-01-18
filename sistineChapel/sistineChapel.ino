@@ -4,6 +4,7 @@
 #include "robotArm.h"
 #include "debugger.h"
 #include "commandProcessor.h"
+#include "PIMotorSpeed.h"
 
 // This isn't the greatest placement
 RobotArm arm = RobotArm();

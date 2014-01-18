@@ -4,7 +4,7 @@
 class PMotorSpeed
 {
 	private:
-		float proportionalgain[5];
+		float proportionalGain[5];
 		float setPoint[5];
 		float min[5];
 		float max[5];
