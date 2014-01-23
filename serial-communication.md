@@ -1,7 +1,17 @@
 Serial Communication Documentation
 ==================================
 
-This is a list of commands that the Arduino will accept over serial. The commands should be sent as strings.
+This is a list of commands that the Arduino will accept over serial. The commands should be sent as strings with a newline character at the end.
+
+Status Reporting
+----------------
+
+The Arduino sends the current angle for every joint in every loop iteration with the following syntax:
+
+armStatus [joint0angle] [joint1angle] [joint2angle] [joint3angle] [joint4angle]
+
+* joint[0-4]angle
+  Float between 0.0 and 360.0
 
 Commands
 --------
@@ -71,3 +81,68 @@ jointLimits [jointNumber] [min] [max]
   Integer between 0 and 359
 * max
   Integer between 0 and 359
+
+### getJointGains [jointNumber]
+
+#### Description
+
+The Arduino will return the PID gains for the current joint.
+
+#### Params
+
+* jointNumber
+  Integer between 0 and 4
+
+#### Response
+
+jointGains [jointNumber] [PGain] [IGain] [DGain]
+
+* jointNumber
+  Integer between 0 and 4
+* PGain
+  Float between 0.0 and 5.0
+* IGain
+  Float between 0.0 and 5.0
+* DGain
+  Float between 0.0 and 5.0
+
+### setJointGains [jointNumber] [PGain] [IGain] [DGain]
+
+#### Description
+
+The Arduino will set the provided values as the joint PID gains.
+
+#### Params
+
+* jointNumber
+  Integer between 0 and 4
+* PGain
+  Float between 0.0 and 5.0
+* IGain
+  Float between 0.0 and 5.0
+* DGain
+  Float between 0.0 and 5.0
+
+#### Response
+
+No response
+
+### getJointError [jointNumber]
+
+#### Description
+
+The Arduino will return the current angle error for the provided joint.
+
+#### Params
+
+* jointNumber
+  Integer between 0 and 4
+
+#### Response
+
+jointError [jointNumber] [error]
+
+* jointNumber
+  Integer between 0 and 4
+* error
+  Float between -180.0 and 180.0
