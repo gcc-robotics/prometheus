@@ -1,8 +1,9 @@
+#import <Arduino.h>
+
 #include "PIMotorSpeed.h"
 
-PIMotorSpeed::PIMotorSpeed()
+PIMotorSpeed::PIMotorSpeed() : PMotorSpeed()
 {
-	super->PMotorSpeed();
 
 	for(int i = 0; i < this->numMotors; i++)
 	{
@@ -27,7 +28,7 @@ int PIMotorSpeed::calculate(int jointNumber, float currentAngle)
 	{
 		float angleError = this->getAngleError(jointNumber, currentAngle);
 
-		sum = super.calculate(jointNumber, currentAngle) - this->integralGain[jointNumber] * angleError + this->previousMotorSpeed[jointNumber];
+		sum = PMotorSpeed::calculate(jointNumber, currentAngle) - this->integralGain[jointNumber] * angleError + this->previousMotorSpeed[jointNumber];
 
 		motorSpeed = this->previousMotorSpeed[jointNumber];
 

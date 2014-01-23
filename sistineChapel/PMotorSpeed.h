@@ -8,7 +8,9 @@ class PMotorSpeed
 		float setPoint[5];
 		float min[5];
 		float max[5];
-        int numMotors;
+       
+    protected:
+    	int numMotors;
 
 	public:
 		PMotorSpeed();
