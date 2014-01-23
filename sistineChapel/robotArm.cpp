@@ -33,7 +33,7 @@ void RobotArm::setup()
 
 	this->mux = Multiplexer();
 	this->motor = MotorController();
-	this->motorSpeed = PMotorSpeed();
+	this->motorSpeed = PIMotorSpeed();
 
 	this->motor.setup();
 }

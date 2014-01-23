@@ -1,6 +1,6 @@
 #include "motorController.h"
 #include "multiplexer.h"
-#include "PMotorSpeed.h"
+#include "PIMotorSpeed.h"
 
 #ifndef ROBOTARM_H
 #define ROBOTARM_H
