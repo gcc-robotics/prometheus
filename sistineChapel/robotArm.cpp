@@ -48,6 +48,11 @@ MotorController* RobotArm::getMotorController()
 	return &(this->motor);
 }
 
+PIMotorSpeed* RobotArm::getPIMotorSpeed()
+{
+	return &(this->motorSpeed);
+}
+
 bool RobotArm::moveJointToSetPoint(int jointNumber)
 {
 	// Get the current angle

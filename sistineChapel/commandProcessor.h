@@ -14,6 +14,7 @@ class CommandProcessor
 		CommandProcessor();
 
 		void setup(RobotArm* robotArm);
+		void armStatus();
 
 		// -----------------------------------------------
 		// Commands --------------------------------------
@@ -23,6 +24,10 @@ class CommandProcessor
 		void setJointAngle(String command);
 		void getJointAngle(String command);
 		void getJointLimits(String command);
+		void getJointGains(String command);
+		void setJointGains(String command);
+		void getJointError(String command);
+
 
 		// Loop function for the CommandProcessor
 		// Call in the Arduino loop function

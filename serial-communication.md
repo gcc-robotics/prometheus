@@ -19,6 +19,9 @@ Commands
 * setJointAngle [jointNumber] [angle]
 * getJointAngle [jointNumber]
 * getJointLimits [jointNumber]
+* setJointGains [jointNumber] [PGain] [IGain] [DGain]
+* getJointGains [jointNumber]
+* getjointError [jointNumber]
 
 
 ### setJointAngle [jointNumber] [angle]
@@ -117,11 +120,11 @@ The Arduino will set the provided values as the joint PID gains.
 * jointNumber
   Integer between 0 and 4
 * PGain
-  Float between 0.0 and 5.0
+  Float between 0.0 and 5.0 and must always be 2 digits after the decimal place
 * IGain
-  Float between 0.0 and 5.0
+  Float between 0.0 and 5.0 and must always be 2 digits after the decimal place
 * DGain
-  Float between 0.0 and 5.0
+  Float between 0.0 and 5.0 and must always be 2 digits after the decimal place
 
 #### Response
 

@@ -24,13 +24,32 @@ void CommandProcessor::loop()
 		}
 		else if(command.indexOf("getJointAngle") >= 0)
 		{
-				this->getJointAngle(command);
+			this->getJointAngle(command);
 		}
 		else if(command.indexOf("getJointLimits") >= 0)
 		{
-				this->getJointLimits(command);
+			this->getJointLimits(command);
+		}
+		else if(command.indexOf("getJointGains") >= 0)
+		{
+			this->getJointGains(command);
+		}
+		else if(command.indexOf("setJointGains") >= 0)
+		{
+			this->setJointGains(command);
+		}
+		else if(command.indexOf("getJointError") >= 0)
+		{
+			this->getJointError(command);
 		}
 	}
+
+	this->armStatus();
+}
+
+void CommandProcessor::armStatus()
+{
+	Serial.println("armStatus " + String(this->arm->getJointAngle(0)) + " " + String(this->arm->getJointAngle(1)) + " " + String(this->arm->getJointAngle(2)) + " " + String(this->arm->getJointAngle(3)) + " " + String(this->arm->getJointAngle(4)));
 }
 
 // -----------------------------------------------
@@ -62,4 +81,41 @@ void CommandProcessor::getJointLimits(String command)
 	int max = this->arm->getJointMaximum(jointNumber);
 	
 	Serial.println("jointLimits " + String(jointNumber) + " " + String(min) + " " + String(max));
+}
+
+void CommandProcessor::getJointGains(String command)
+{
+	int jointNumber = command.substring(14, 15).toInt();
+
+	float PGain = this->arm->getPIMotorSpeed()->getProportionalGain(jointNumber);
+	int newPGain = int(PGain * 100.0);
+
+	float IGain = this->arm->getPIMotorSpeed()->getIntegralGain(jointNumber);
+	int newIGain = int(IGain * 100.0);
+
+	float DGain = 0.0;
+	int newDGain = DGain * 100;
+
+	Serial.println("jointGains " + String(jointNumber) + " " + String(newPGain / 100) + "." + String(newPGain % 100) + " " + String(newIGain / 100) + "." + String(newIGain % 100) + " " + String(newDGain / 100) + "." + String(newDGain % 100));
+}
+
+void CommandProcessor::setJointGains(String command)
+{
+	int jointNumber = command.substring(14, 15).toInt();
+	float proportionalgain = command.substring(16, 17).toInt() + float(command.substring(18, 20).toInt()) / 100;
+	float integralgain = command.substring(21, 22).toInt() + float(command.substring(23, 25).toInt()) / 100;
+	float derivativegain = command.substring(26, 27).toInt() + float(command.substring(28, 30).toInt()) / 100;
+
+	this->arm->getPIMotorSpeed()->setProportionalGain(jointNumber, proportionalgain);
+	this->arm->getPIMotorSpeed()->setIntegralGain(jointNumber, integralgain);
+	//this->arm->setDerivativeGain(jointNumber, derivativegain);
+}
+
+void CommandProcessor::getJointError(String command)
+{
+	int jointNumber = command.substring(14, 15).toInt();
+	float error = this->arm->getPIMotorSpeed()->getAngleError(jointNumber, this->arm->getJointAngle(jointNumber));
+	int newError = error * 100;
+
+	Serial.println("jointError " + String(jointNumber) + " " + String(newError / 100) + "." + String(abs(newError % 100)));
 }
