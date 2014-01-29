@@ -13,6 +13,8 @@ class PIMotorSpeed : public PMotorSpeed
 	public:
 		PIMotorSpeed();
 		int calculate(int jointNumber, float currentAngle);
+		void setIntegralGain(int jointNumber, float newintegralgain);
+		float getIntegralGain(int jointNumber);
 };
 
 #endif

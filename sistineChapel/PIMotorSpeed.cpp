@@ -42,3 +42,16 @@ int PIMotorSpeed::calculate(int jointNumber, float currentAngle)
 
 	return motorSpeed;
 }
+
+void PIMotorSpeed::setIntegralGain(int jointNumber, float newintegralgain)
+{
+	jointNumber = constrain(jointNumber, 0, 5);
+	newintegralgain = constrain(newintegralgain, 0.0, 5.0);
+
+	this->integralGain[jointNumber] = newintegralgain;
+}
+
+float PIMotorSpeed::getIntegralGain(int jointNumber)
+{
+	return integralGain[jointNumber];
+}

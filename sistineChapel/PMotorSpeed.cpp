@@ -39,6 +39,11 @@ void PMotorSpeed::setProportionalGain(int jointNumber, float newproportionalgain
 	this->proportionalGain[jointNumber] = newproportionalgain;
 }
 
+float PMotorSpeed::getProportionalGain(int jointNumber)
+{
+	return proportionalGain[jointNumber];
+}
+
 int PMotorSpeed::calculate(int jointNumber, float currentAngle)
 {
 	jointNumber = constrain(jointNumber, 0, 5);

@@ -15,7 +15,7 @@ class RobotArm
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;
 		Multiplexer mux;
-		PMotorSpeed motorSpeed;
+		PIMotorSpeed motorSpeed;
 
 		/* Contains the logic to actually move a joint to the desired angle
 		 * input jointNumber = 0 to 4
@@ -29,6 +29,7 @@ class RobotArm
 
 		Multiplexer* getMultiplexer();
 		MotorController* getMotorController();
+		PIMotorSpeed* getPIMotorSpeed();
 
 		/* Setup the arm for use
 		 * no input
