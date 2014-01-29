@@ -56,7 +56,8 @@ ko.bindingHandlers.max =
 	}
 };
 
-ko.bindingHandlers.commandConsoleKeyActions = {
+ko.bindingHandlers.commandConsoleKeyActions = 
+{
 	init: function(element, valueAccessor, allBindingsAccessor, viewModel)
 	{
 		$(element).keyup(function(e)
@@ -80,9 +81,10 @@ ko.bindingHandlers.commandConsoleKeyActions = {
 	}
 };
 
-function Joint(data)
+function Joint(data, socket)
 {
 	var self = this;
+	self.socket = socket;
 	
 	self.title = data.title;
 	self.jointNumber = ko.observable(data.jointNumber);
@@ -110,24 +112,16 @@ function Joint(data)
 	{		
 		if(vm.enabled())
 		{
-			console.log("Joint " + self.jointNumber() + " angle: " + self.setPoint());
-			
-			$.ajax("/command/setJointAngle/", {
-				data: ko.toJSON(
+			var command = ko.toJSON(
 				{
+					command: "setJointAngle",
 					jointNumber: self.jointNumber(), 
 					angle: self.setPoint()
-				}),
-				type: "post", contentType: "application/json",
-				success: function(result)
-				{
-					console.log(JSON.parse(result));
-				},
-				error: function(result)
-				{
-					console.warn(result);
-				}
-			});
+				});
+
+			console.log(command);
+
+			socket.send(command);
 		}
 		else
 		{
@@ -155,6 +149,8 @@ function PrometheusViewModel()
 {
 	// Data
 	var self = this;
+	self.socket = null;
+	self.socketServer = 'ws://localhost:8888/';
 	
 	self.textEnabled = ko.observable("off");
 	self.enabled = ko.computed(function()
@@ -168,6 +164,28 @@ function PrometheusViewModel()
 	self.commandText = ko.observable().extend({ notify: 'always' });
 	self.commandHistory = ko.observableArray();
 	self.commandPosition = 0;
+
+	// Socket
+	self.initSocket = function()
+	{
+		self.socket = new WebSocket(self.socketServer);
+
+		self.socket.onopen = function()
+		{
+			console.log('Socket Connected!');
+		};
+
+		self.socket.onmessage = function(event)
+		{
+			console.log('Socket Received data: ' + event.data);
+		};
+
+		self.socket.onclose = function()
+		{
+			console.log('Socket connection lost!');
+			socket.close();
+		};
+	};
 	
 	// Operations
 	self.sendCommand = function()
@@ -185,39 +203,31 @@ function PrometheusViewModel()
 		
 		if($.inArray(commandData[0], allowedCommands) != -1)
 		{
-			var url = "/command/" + commandData[0] + "/";
-			var postData = {};
-			
 			if(!isNaN(Number(commandData[1])))
 			{
-				postData.jointNumber = commandData[1];
-				
-				if(!isNaN(Number(commandData[2])))
+				commandData[1] = Number(commandData[1]);
+			}
+
+			var command = ko.toJSON(
 				{
-					postData.angle = commandData[2];
-				}
+					command: commandData[0],
+					jointNumber: commandData[1]
+				});
+
+			switch(commandData[0])
+			{
+				case "setJointAngle":
+					if(!isNaN(Number(commandData[2])))
+					{
+						commandData[2] = Number(commandData[2]);
+					}
+
+					command.angle = commandData[2];
 			}
 			
-			console.log(postData);
+			console.log(command);
 			
-			$.ajax(url, {
-				data: ko.toJSON(postData),
-				type: "post", contentType: "application/json",
-				success: function(result)
-				{
-					console.log(result);
-					//var data = JSON.parse(result);
-
-					self.commandHistory()[index].response(result);
-					self.commandHistory()[index].duration(Date.now() - self.commandHistory()[index].startTime);
-				},
-				error: function(result)
-				{
-					console.warn(result);
-					
-					self.commandHistory()[index].response("Server error");
-				}
-			});
+			self.socket.send(command);
 		}
 		else
 		{
@@ -254,8 +264,10 @@ function PrometheusViewModel()
 
 	self.addJoint = function(data)
 	{
-		self.joints.push(new Joint(data));
+		self.joints.push(new Joint(data, self.socket));
 	};
+
+	self.initSocket();
 }
 
 var vm = new PrometheusViewModel()

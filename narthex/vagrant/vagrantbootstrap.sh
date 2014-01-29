@@ -50,7 +50,7 @@ then
 	fi
 	
 	# Install apache/php etc.
-	apt-get install vim apache2 php5 libapache2-mod-php5 php5-mysql php5-gd php5-curl php5-mcrypt curl unzip imagemagick git -y 2>/dev/null
+	apt-get install vim apache2 php5 libapache2-mod-php5 php5-mysql php5-gd php5-curl php5-mcrypt curl unzip imagemagick git python-twisted -y 2>/dev/null
 
 	# Copy over the php.ini file from vagrant/php.ini
 	if [ -f "/vagrant/vagrant/php.ini" ];
