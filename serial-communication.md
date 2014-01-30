@@ -8,9 +8,11 @@ Status Reporting
 
 The Arduino sends the current angle for every joint in every loop iteration with the following syntax:
 
-armStatus [joint0angle] [joint1angle] [joint2angle] [joint3angle] [joint4angle]
+armStatus [joint0angle] [joint1angle] [joint2angle] [joint3angle] [joint4angle] [joint0error] [joint1error] [joint2error] [joint3error] [joint4error]
 
 * joint[0-4]angle
+  Float between 0.0 and 360.0
+* joint[0-4]error
   Float between 0.0 and 360.0
 
 Commands

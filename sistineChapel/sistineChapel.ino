@@ -21,7 +21,7 @@ void setup()
 	// Set timeout for serial read functions to 10ms
 	// Use 10ms instead of the default 1000 so that the
 	// arm controls work better while the debugger is active
-	Serial.setTimeout(10);
+	Serial.setTimeout(50);
 
 	arm.setup();
 	commandProcessor.setup(&arm);
