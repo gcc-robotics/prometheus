@@ -82,6 +82,8 @@ void CommandProcessor::setJointAngle(String command)
 	int angle = command.substring(16).toInt();
 
 	this->arm->setJointAngle(jointNumber, angle);
+
+	Serial.println("jointSetPoint " + String(jointNumber) + " " + String(angle));
 }
 
 void CommandProcessor::getJointAngle(String command)

@@ -41,7 +41,12 @@ The Arduino sets the selected joint to the provided angle.
 
 #### Response
 
-No response
+jointSetPoint [jointNumber] [angle]
+
+*jointNumber
+ Integer between 0 and 4
+*angle
+ Integer between 0 and 359
 
 
 ### getJointAngle [jointNumber]
