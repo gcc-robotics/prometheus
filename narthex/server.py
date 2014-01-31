@@ -24,7 +24,7 @@ class PrometheusSerial:
 		response = ""
 		
 		while response == "":
-			response = self.__connection.readLine()
+			response = self.__connection.readline()
 		
 		return str(response)
 	
