@@ -193,7 +193,7 @@ function RobotArm(viewModel)
 		self.addLine(self.mesh['humerus'], new THREE.Vector3(100, -290, -135), new THREE.Vector3(-100, -290, -138));
 		self.addLine(self.mesh['forearm-back'], new THREE.Vector3(0, 0, -238), new THREE.Vector3(0, 0, -138));
 
-		console.log('Loading complete!');
+		console.log('3D: Mesh loading complete!');
 		
 		// Start the animation
 		self.animate();	
@@ -203,19 +203,19 @@ function RobotArm(viewModel)
 	{
 		requestAnimationFrame(self.animate);
 		
-		// Move meshes according to the range inputs
-		self.mesh['torso'].rotation.y = self.viewModel.joints()[0].setPoint() / 180 * Math.PI;
-		self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].setPoint() / 180 * Math.PI;
-		self.mesh['forearm-back'].rotation.x = self.viewModel.joints()[2].setPoint() / 180 * Math.PI;
-		self.mesh['forearm-front'].rotation.z = self.viewModel.joints()[3].setPoint() / 180 * Math.PI;
+		// Move meshes according to the current joint angles
+		self.mesh['torso'].rotation.y = self.viewModel.joints()[0].currentAngle() / 180 * Math.PI;
+		self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].currentAngle() / 180 * Math.PI;
+		self.mesh['forearm-back'].rotation.x = self.viewModel.joints()[2].currentAngle() / 180 * Math.PI;
+		self.mesh['forearm-front'].rotation.z = self.viewModel.joints()[3].currentAngle() / 180 * Math.PI;
 		
 		// Rotate camera around 0,300,0
-		self.cameraIterator += 0.01;
-		self.camera.position.x = Math.sin(self.cameraIterator) * self.cameraDistance;
-		self.camera.position.z = Math.cos(self.cameraIterator) * self.cameraDistance;
-		//self.camera.position.x = Math.sin(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
-		//self.camera.position.z = Math.cos(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
-		self.camera.lookAt(new THREE.Vector3(0, 300, 0)); // 0, 300, 0
+		// self.cameraIterator += 0.01;
+		// self.camera.position.x = Math.sin(self.cameraIterator) * self.cameraDistance;
+		// self.camera.position.z = Math.cos(self.cameraIterator) * self.cameraDistance;
+		// self.camera.position.x = Math.sin(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
+		// self.camera.position.z = Math.cos(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
+		// self.camera.lookAt(new THREE.Vector3(0, 300, 0)); // 0, 300, 0
 		
 		self.renderer.render(self.scene, self.camera);
 	}

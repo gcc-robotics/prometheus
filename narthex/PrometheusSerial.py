@@ -64,7 +64,7 @@ class PrometheusSerial:
 			if self.connection.inWaiting() > 0:
 				data = self.connection.readline().split()
 
-				print "Data from arduino: " + str(data)
+				print "PrometheusSerial: Data from arduino: " + str(data)
 
 				command = data[0]
 

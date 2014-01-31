@@ -95,20 +95,17 @@ function Joint(data, socket)
 	
 	self.min = ko.observable(data.min);
 	self.max = ko.observable(data.max);
-	self.setPoint = ko.observable(data.setPoint).extend({ notify: 'always' });
+	self.setPoint = ko.observable(data.setPoint);
+	self.currentAngle = ko.observable(int(self.min() - self.max() / 2));
+	self.angleError = ko.observable(0);
+
+	self.PGain = ko.observable(1.0);
+	self.IGain = ko.observable(1.0);
+	self.DGain = ko.observable(1.0);
 	
-	// An unnamed computed observable to trigger AJAX.
-	// Throttled by 100ms to prevent multiple AJAX requests 
-	// being sent as the user changes the slider
-	//
-	// TODO: Maybe instead of throttling a computed observable
-	// we should use self.setPoint.subscribe and issue the AJAX
-	// request immediately and then cancel it if it hasn't finished
-	// by the time the function is called again? This would prevent 
-	// AJAX requests from being sent when vm.enabled() and 
-	// self.jointNumber() change like they do now and remove the 
-	// 100ms of latency introduced by the throttling.
-	ko.computed(function()
+	// Subscribe to changes in the setpoint so we can send the updates to the 
+	// Arduino using the socket
+	self.setPoint.subscribe(function()
 	{		
 		if(vm.enabled())
 		{
@@ -127,7 +124,7 @@ function Joint(data, socket)
 		{
 			console.log("Manual control disabled.")
 		}
-	}).extend({throttle: 100});
+	});
 }
 
 function Command(data)
@@ -180,6 +177,68 @@ function PrometheusViewModel()
 			console.log('Socket connection lost!');
 			socket.close();
 		};
+
+		self.Socket.onmessage = function(event)
+		{
+			self.receiveSocketData(event.data);
+		};
+	};
+
+	self.receiveSocketData = function(data)
+	{
+		// We need to figure out what we are going to do with the command 
+		// console now that we are using a socket instead of ajax requests 
+		// because we now have to figure out which response belongs to which 
+		// command.
+
+		json = null;
+
+		try
+		{
+			json = $.parseJSON(data);	
+		}
+		catch(exception)
+		{
+			console.log("Failed to parse data from socket as JSON. Data:");
+			console.log(data);
+		}
+		
+		if(json != null)
+		{
+			switch(json.command)
+			{
+				case "armStatus":
+					for (var i = self.joints() - 1; i >= 0; i--) {
+						self.joints()[i].currentAngle(json.currentAngle[i]);
+						self.joints()[i].angleError(json.currentError[i]);
+					};
+					break;
+				
+				case "jointAngle":
+					self.joints()[json.jointNumber].currentAngle(json.angle);
+					break;
+				
+				case "jointLimits":
+					self.joints()[json.jointNumber].min(json.min);
+					self.joints()[json.jointNumber].max(json.max);
+					break;
+				
+				case "jointGains":
+					self.joints()[json.jointNumber].PGain(json.PGain);
+					self.joints()[json.jointNumber].IGain(json.IGain);
+					self.joints()[json.jointNumber].DGain(json.DGain);
+					break;
+
+				case "jointError":
+					self.joints()[json.jointNumber].angleError(json.error);
+					break;
+			}
+		}
+		else
+		{
+			console.log("Failed to parse data from socket as JSON. Data:");
+			console.log(data);
+		}
 	};
 	
 	// Operations
@@ -194,7 +253,9 @@ function PrometheusViewModel()
 		self.commandPosition = index + 1;
 		self.commandHistory.push(new Command({"command": command}));
 		
-		var allowedCommands = ["setJointAngle", "getJointAngle", "getJointLimits"];
+		var allowedCommands = ["setJointGains", "setJointAngle", 
+			"getJointAngle", "getJointLimits",
+			"getJointGains", "getjointError"];
 		
 		if($.inArray(commandData[0], allowedCommands) != -1)
 		{
@@ -211,18 +272,50 @@ function PrometheusViewModel()
 
 			switch(commandData[0])
 			{
+				case "setJointGains":
+					* setJointGains [jointNumber] [PGain] [IGain] [DGain]
+					if(!isNaN(Number(commandData[2])))
+					{
+						command.PGain = Number(commandData[2]);
+						
+						if(!isNaN(Number(commandData[3])))
+						{
+							command.IGain = Number(commandData[3]);
+						
+							if(!isNaN(Number(commandData[4])))
+							{
+								command.DGain = Number(commandData[4]);
+							
+								self.socket.send(command);
+							}
+						}
+					}
+
+					break;
+
 				case "setJointAngle":
 					if(!isNaN(Number(commandData[2])))
 					{
-						commandData[2] = Number(commandData[2]);
+						command.angle = Number(commandData[2]);
+						
+						self.socket.send(command);
 					}
 
-					command.angle = commandData[2];
+					break;
+
+				case "getJointAngle":
+				case "getJointLimits":
+				case "getJointGains":
+				case "getjointError":
+					self.socket.send(command);
+					break;
+
+				case default:
+					self.commandHistory()[index].response("Invalid command");
+					break;
 			}
 			
-			console.log(command);
-			
-			self.socket.send(command);
+			console.log("Data Sent: " + command);
 		}
 		else
 		{
