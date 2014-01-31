@@ -150,7 +150,7 @@ function PrometheusViewModel()
 	// Data
 	var self = this;
 	self.socket = null;
-	self.socketServer = 'ws://localhost:8888/';
+	self.socketServer = 'ws://10.33.0.2:8888/';
 	
 	self.textEnabled = ko.observable("off");
 	self.enabled = ko.computed(function()
@@ -173,11 +173,6 @@ function PrometheusViewModel()
 		self.socket.onopen = function()
 		{
 			console.log('Socket Connected!');
-		};
-
-		self.socket.onmessage = function(event)
-		{
-			console.log('Socket Received data: ' + event.data);
 		};
 
 		self.socket.onclose = function()

@@ -25,6 +25,7 @@ print "PrometheusWeb: Web Server Started"
 
 # WebSocket Server
 socketFactory = PrometheusSocketFactory(serial)
+serial.setSocket(socketFactory)
 
 reactor.listenTCP(8888, WebSocketFactory(socketFactory))
 

@@ -35,22 +35,32 @@ class PrometheusSocket(protocol.Protocol):
 			
 			if jsonData != {}:
 				try:
+					jointNumber = int(jsonData['jointNumber'])
+
 					# Check if we received a known command
 					if jsonData['command'] == "setJointAngle":
-						jointNumber = int(jsonData['jointNumber'])
 						angle = int(jsonData['angle'])
 
 						self.serial.setJointAngle(jointNumber, angle)
 					
 					elif jsonData['command'] == "getJointAngle":
-						jointNumber = int(jsonData['jointNumber'])
-
 						self.serial.getJointAngle(jointNumber)
 					
 					elif jsonData['command'] == "getJointLimits":
-						jointNumber = int(jsonData['jointNumber'])
-
 						self.serial.getJointLimits(jointNumber)
+
+					elif jsonData['command'] == "setJointGains":
+						PGain = float(jsonData['PGain'])
+						IGain = float(jsonData['IGain'])
+						DGain = float(jsonData['DGain'])
+
+						self.serial.setJointGains(jointNumber, PGain, IGain, DGain)
+
+					elif jsonData['command'] == "getJointGains":
+						self.serial.getJointGains(jointNumber)
+
+					elif jsonData['command'] == "getjointError":
+						self.serial.getjointError(jointNumber)
 
 					else:
 						self.transport.write(json.dumps({'error': 'Unknown command.'}))
@@ -70,6 +80,6 @@ class PrometheusSocketFactory(protocol.Factory):
 	def buildProtocol(self, addr):
 		return PrometheusSocket(self.clients, self.serial)
 
-	def writeToAll(self, message):
+	def writeToAll(self, data):
 		for client in self.clients:
-			client.transport.write(message)
+			client.transport.write(data)
