@@ -10,7 +10,7 @@ class PrometheusSerial:
 
 	socket = None
 
-	def __init__(self, socket):
+	def __init__(self):
 		print "PrometheusSerial: Starting serial communication"
 
 		self.init()
@@ -59,59 +59,64 @@ class PrometheusSerial:
 		if self.socket != None:
 			self.socket.writeToAll(data)
 
+			print "PrometheusSerial: Sending data to socket: " + str(data)
+
 	def proccessData(self):
-		while self.connected:
+		if self.connected:
 			if self.connection.inWaiting() > 0:
 				data = self.connection.readline().split()
 
 				print "PrometheusSerial: Data from arduino: " + str(data)
 
-				command = data[0]
+				try:
+					command = data[0]
 
-				jsonData = {
-					"command": command
-				}
+					jsonData = {
+						"command": command
+					}
 
-				if command == "armStatus":
-					jsonData["currentAngle"] = {}
-					jsonData["currentError"] = {}
+					if command == "armStatus":
+						jsonData["currentAngle"] = {}
+						jsonData["currentError"] = {}
 
-					for index in xrange(5):
-						jsonData["currentAngle"][index] = data[index + 1]
+						for index in xrange(5):
+							jsonData["currentAngle"][index] = data[index + 1]
 
-					for index in xrange(5):
-						jsonData["currentError"][index] = data[index + 6]
+						for index in xrange(5):
+							jsonData["currentError"][index] = data[index + 6]
 
-					self.writeToSocket(json.dumps(jsonData))
+						self.writeToSocket(json.dumps(jsonData))
 
-				elif command == "jointAngle":
-					jsonData["jointNumber"] = data[1]
-					jsonData['angle'] = data[2]
+					elif command == "jointAngle":
+						jsonData["jointNumber"] = data[1]
+						jsonData['angle'] = data[2]
 
-					self.writeToSocket(json.dumps(jsonData))
+						self.writeToSocket(json.dumps(jsonData))
 
-				elif command == "jointLimits":
-					jsonData["jointNumber"] = data[1]
-					jsonData["min"] = data[2]
-					jsonData["max"] = data[3]
+					elif command == "jointLimits":
+						jsonData["jointNumber"] = data[1]
+						jsonData["min"] = data[2]
+						jsonData["max"] = data[3]
 
-					self.writeToSocket(json.dumps(jsonData))
+						self.writeToSocket(json.dumps(jsonData))
 
-				elif command == "jointGains":
-					jsonData["jointNumber"] = data[1]
-					jsonData["PGain"] = data[2]
-					jsonData["IGain"] = data[3]
-					jsonData["DGain"] = data[4]
+					elif command == "jointGains":
+						jsonData["jointNumber"] = data[1]
+						jsonData["PGain"] = data[2]
+						jsonData["IGain"] = data[3]
+						jsonData["DGain"] = data[4]
 
-					self.writeToSocket(json.dumps(jsonData))
-				elif command == "jointError":
-					jsonData["jointNumber"] = data[1]
-					jsonData["error"] = data[2]
+						self.writeToSocket(json.dumps(jsonData))
+					elif command == "jointError":
+						jsonData["jointNumber"] = data[1]
+						jsonData["error"] = data[2]
 
-					self.writeToSocket(json.dumps(jsonData))
+						self.writeToSocket(json.dumps(jsonData))
 
-				else:
-					print "PrometheusSerial: Unknown command received from Arduino"
+					else:
+						print "PrometheusSerial: Unknown command received from Arduino"
+				except:
+					print "PrometheusSerial: Bad data received from Arduino"
 
 
 	def setJointAngle(self, jointNumber, angle):
@@ -128,9 +133,9 @@ class PrometheusSerial:
 
 	def setJointGains(self, jointNumber, PGain, IGain, DGain):
 		if self.connected:
-				self.connection.write("setJointGains " + str(jointNumber) \
-				                      " " + str(PGain) \
-				                      " " + str(IGain) \
+				self.connection.write("setJointGains " + str(jointNumber) + \
+				                      " " + str(PGain) + \
+				                      " " + str(IGain) + \
 				                      " " + str(DGain))
 
 	def getJointGains(self, jointNumber):

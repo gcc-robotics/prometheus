@@ -96,7 +96,7 @@ function Joint(data, socket)
 	self.min = ko.observable(data.min);
 	self.max = ko.observable(data.max);
 	self.setPoint = ko.observable(data.setPoint);
-	self.currentAngle = ko.observable(int(self.min() - self.max() / 2));
+	self.currentAngle = ko.observable(self.min() - self.max() / 2);
 	self.angleError = ko.observable(0);
 
 	self.PGain = ko.observable(1.0);
@@ -148,7 +148,9 @@ function PrometheusViewModel()
 	var self = this;
 	self.socket = null;
 	self.socketServer = 'ws://10.33.0.2:8888/';
-	
+	// self.socketServer = 'ws://localhost:8888/';
+
+
 	self.textEnabled = ko.observable("off");
 	self.enabled = ko.computed(function()
 	{
@@ -178,7 +180,7 @@ function PrometheusViewModel()
 			socket.close();
 		};
 
-		self.Socket.onmessage = function(event)
+		self.socket.onmessage = function(event)
 		{
 			self.receiveSocketData(event.data);
 		};
@@ -190,6 +192,8 @@ function PrometheusViewModel()
 		// console now that we are using a socket instead of ajax requests 
 		// because we now have to figure out which response belongs to which 
 		// command.
+
+		console.log("Data from socket: " + data);
 
 		json = null;
 
@@ -208,7 +212,8 @@ function PrometheusViewModel()
 			switch(json.command)
 			{
 				case "armStatus":
-					for (var i = self.joints() - 1; i >= 0; i--) {
+					for(var i = 0; i < self.joints().length; i++)
+					{
 						self.joints()[i].currentAngle(json.currentAngle[i]);
 						self.joints()[i].angleError(json.currentError[i]);
 					};
@@ -273,7 +278,6 @@ function PrometheusViewModel()
 			switch(commandData[0])
 			{
 				case "setJointGains":
-					* setJointGains [jointNumber] [PGain] [IGain] [DGain]
 					if(!isNaN(Number(commandData[2])))
 					{
 						command.PGain = Number(commandData[2]);
@@ -310,7 +314,7 @@ function PrometheusViewModel()
 					self.socket.send(command);
 					break;
 
-				case default:
+				default:
 					self.commandHistory()[index].response("Invalid command");
 					break;
 			}
