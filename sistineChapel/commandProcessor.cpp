@@ -1,5 +1,7 @@
 #include "commandProcessor.h"
 
+long int lastTime = 0;
+
 CommandProcessor::CommandProcessor()
 {
 	// Twiddle thumbs
@@ -44,7 +46,11 @@ void CommandProcessor::loop()
 		}
 	}
 
-	this->armStatus();
+	if(millis() - lastTime >= 10)
+	{
+		this->armStatus();
+		lastTime = millis();
+	}
 }
 
 void CommandProcessor::armStatus()
