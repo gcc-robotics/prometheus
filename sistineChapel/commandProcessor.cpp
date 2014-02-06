@@ -46,7 +46,7 @@ void CommandProcessor::loop()
 		}
 	}
 
-	if(millis() - lastTime >= 10)
+	if(millis() - lastTime >= 100)
 	{
 		this->armStatus();
 		lastTime = millis();
