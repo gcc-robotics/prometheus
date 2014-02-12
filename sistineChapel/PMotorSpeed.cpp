@@ -12,11 +12,11 @@ PMotorSpeed::PMotorSpeed()
 		this->setSetPoint(i, 0);
 	}
 
-	proportionalGain[0] = 1.0;
-	proportionalGain[1] = 1.0;
-	proportionalGain[2] = 1.0;
-	proportionalGain[3] = 1.0;
-	proportionalGain[4] = 1.0;
+	proportionalGain[0] = 0.3;
+	proportionalGain[1] = 0.3;
+	proportionalGain[2] = 0.3;
+	proportionalGain[3] = 0.3;
+	proportionalGain[4] = 0.3;
 
 	min[0] = 0.0;
 	min[1] = 0.0;
@@ -31,7 +31,7 @@ PMotorSpeed::PMotorSpeed()
 	max[4] = 359.9;
 }
 
-void PMotorSpeed::setProportionalGain(int jointNumber, float newproportionalgain)
+void PMotorSpeed::setProportionalGain(int jointNumber, double newproportionalgain)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	newproportionalgain = constrain(newproportionalgain, 0.0, 5.0);
@@ -39,22 +39,22 @@ void PMotorSpeed::setProportionalGain(int jointNumber, float newproportionalgain
 	this->proportionalGain[jointNumber] = newproportionalgain;
 }
 
-float PMotorSpeed::getProportionalGain(int jointNumber)
+double PMotorSpeed::getProportionalGain(int jointNumber)
 {
 	return proportionalGain[jointNumber];
 }
 
-int PMotorSpeed::calculate(int jointNumber, float currentAngle)
+int PMotorSpeed::calculate(int jointNumber, double currentAngle)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	currentAngle = constrain(currentAngle, -360.0, 360.0);
 
-	float currentAngleError = this->getAngleError(jointNumber, currentAngle);
+	double currentAngleError = this->getAngleError(jointNumber, currentAngle);
 
 	return currentAngleError * proportionalGain[jointNumber];
 }
 
-void PMotorSpeed::setSetPoint(int jointNumber, float setPoint)
+void PMotorSpeed::setSetPoint(int jointNumber, double setPoint)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	
@@ -77,21 +77,21 @@ void PMotorSpeed::setSetPoint(int jointNumber, float setPoint)
 	this->setPoint[jointNumber] = setPoint;
 }
 
-float PMotorSpeed::getJointMin(int jointNumber)
+double PMotorSpeed::getJointMin(int jointNumber)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	return min[jointNumber];
 }
 
-float PMotorSpeed::getJointMax(int jointNumber)
+double PMotorSpeed::getJointMax(int jointNumber)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	return max[jointNumber];
 }
 
-float PMotorSpeed::getAngleError(int jointNumber, float currentAngle)
+double PMotorSpeed::getAngleError(int jointNumber, double currentAngle)
 {
-	float targetAngle = this->setPoint[jointNumber];
+	double targetAngle = this->setPoint[jointNumber];
 
 	// Shift target angle to -180 to 180
 	targetAngle -= 180.0;
@@ -109,7 +109,7 @@ float PMotorSpeed::getAngleError(int jointNumber, float currentAngle)
 
 	// Get the smallest angle error
 	// Test the logic at: http://jsfiddle.net/frLFG/3/
-	float angleError = targetAngle - currentAngle;
+	double angleError = targetAngle - currentAngle;
 
 	if(angleError > 180)
 	{

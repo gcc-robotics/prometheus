@@ -4,23 +4,23 @@
 class PMotorSpeed
 {
 	private:
-		float proportionalGain[5];
-		float setPoint[5];
-		float min[5];
-		float max[5];
+		double proportionalGain[5];
+		double min[5];
+		double max[5];
        
     protected:
     	int numMotors;
+    	double setPoint[5];
 
 	public:
 		PMotorSpeed();
-		int calculate(int jointNumber, float currentAngle);
-		void setSetPoint(int jointNumber, float setPoint);
-		void setProportionalGain(int jointNumber, float proportionalgain);
-		float getProportionalGain(int jointNumber);
-		float getJointMin(int jointNumber);
-		float getJointMax(int jointNumber);
-		float getAngleError(int jointNumber, float currentAngle);
+		int calculate(int jointNumber, double currentAngle);
+		void setSetPoint(int jointNumber, double setPoint);
+		void setProportionalGain(int jointNumber, double proportionalgain);
+		double getProportionalGain(int jointNumber);
+		double getJointMin(int jointNumber);
+		double getJointMax(int jointNumber);
+		double getAngleError(int jointNumber, double currentAngle);
 };
 
 #endif

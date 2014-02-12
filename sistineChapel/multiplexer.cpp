@@ -97,7 +97,7 @@ float Multiplexer::readPotentiometer(int inputNumber)
 	int sensorValue = this->readInput(inputNumber);
 	int deadZone = 95;
 
-	float potValue = (sensorValue - deadZone) / (1023.0 - deadZone);
+	float potValue = (sensorValue - deadZone) / (1024.0 - deadZone);
 
 	if(potValue < 0)
 	{

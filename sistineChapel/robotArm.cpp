@@ -58,14 +58,18 @@ bool RobotArm::moveJointToSetPoint(int jointNumber)
 	// Get the current angle
 	float currentAngle = this->mux.readEncoder(this->encoderNumber[jointNumber]);
 
-	//Serial.print("Angle Error: ");
-	//Serial.print(angleError);
+	// Serial.print("Moving Joint: ");
+	// Serial.print(jointNumber);
+
+	// Serial.print(", Curent angle: ");
+	// Serial.print(currentAngle);
 
 	// Get the motor speed
 	int motorSpeed = this->motorSpeed.calculate(jointNumber, currentAngle);
 
-	//Serial.print(" currentAngle: ");
-	//Serial.println(currentAngle);
+	// Serial.print(", Calculated motor speed: ");
+	// Serial.println(motorSpeed);
+
 	this->motor.speed(jointNumber, motorSpeed);
 }
 
@@ -116,18 +120,18 @@ void RobotArm::hand(float targetAngle)
 
 void RobotArm::loop()
 {
-	// Waist
-	this->moveJointToSetPoint(0);
+	// // Waist
+	// this->moveJointToSetPoint(0);
 
-	// Shoulder
-	this->moveJointToSetPoint(1);
+	// // Shoulder
+	// this->moveJointToSetPoint(1);
 
-	// Elbow
-	this->moveJointToSetPoint(2);
+	// // Elbow
+	// this->moveJointToSetPoint(2);
 
 	// Wrist
 	this->moveJointToSetPoint(3);
 
-	// Hand
-	this->moveJointToSetPoint(4);
+	// // Hand
+	// this->moveJointToSetPoint(4);
 }

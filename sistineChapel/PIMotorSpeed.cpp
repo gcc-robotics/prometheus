@@ -7,51 +7,85 @@ PIMotorSpeed::PIMotorSpeed() : PMotorSpeed()
 
 	for(int i = 0; i < this->numMotors; i++)
 	{
-		this->previousMotorSpeed[i] = 0;
+		this->ITerm[i] = 0.0;
 	}
 
-	this->integralGain[0] = 1.0;
-	this->integralGain[1] = 1.0;
-	this->integralGain[2] = 1.0;
-	this->integralGain[3] = 1.0;
-	this->integralGain[4] = 1.0;
+	this->integralGain[0] = 0.0;
+	this->integralGain[1] = 0.0;
+	this->integralGain[2] = 0.0;
+	this->integralGain[3] = 0.05;
+	this->integralGain[4] = 0.0;
 
-	this->previousTime = 0;
+	for(int i = 0; i < this->numMotors; i++)
+	{
+		this->previousTime[i] = 0;
+	}
+
+	for(int i = 0; i < this->numMotors; i++)
+	{
+		this->previousSetPoint[i] = 0.0;
+	}
+
+	for(int i = 0; i < this->numMotors; i++)
+	{
+		this->motorSpeed[i] = 0.0;
+	}
+
+	this->sampleTime = 100;
 }
 
-int PIMotorSpeed::calculate(int jointNumber, float currentAngle)
+int PIMotorSpeed::calculate(int jointNumber, double currentAngle)
 {
-	int motorSpeed = 0;
-	float sum = 0.0;
+	unsigned long now = millis();
 
-	if(millis() - this->previousTime > 50)
+	Serial.print("Moving Joint: ");
+	Serial.print(jointNumber);
+
+	if(now - this->previousTime[jointNumber] > this->sampleTime)
 	{
-		float angleError = this->getAngleError(jointNumber, currentAngle);
+		double angleError = this->getAngleError(jointNumber, currentAngle);
 
-		sum = PMotorSpeed::calculate(jointNumber, currentAngle) - this->integralGain[jointNumber] * angleError + this->previousMotorSpeed[jointNumber];
+		this->ITerm[jointNumber] += this->integralGain[jointNumber] * angleError;
 
-		motorSpeed = this->previousMotorSpeed[jointNumber];
+		this->ITerm[jointNumber] = (this->ITerm[jointNumber] > 100) ? 100 : this->ITerm[jointNumber];
+		this->ITerm[jointNumber] = (this->ITerm[jointNumber] < -100) ? -100 : this->ITerm[jointNumber];
 
-		previousMotorSpeed[jointNumber] = sum;
-		this->previousTime = millis();
+		double inputDifference = this->setPoint[jointNumber] - this->previousSetPoint[jointNumber];
+
+		this->motorSpeed[jointNumber] = PMotorSpeed::calculate(jointNumber, currentAngle) + this->ITerm[jointNumber];
+
+		this->motorSpeed[jointNumber] = (this->motorSpeed[jointNumber] > 100) ? 100 : this->motorSpeed[jointNumber];
+		this->motorSpeed[jointNumber] = (this->motorSpeed[jointNumber] < -100) ? -100 : this->motorSpeed[jointNumber];
+
+		this->previousSetPoint[jointNumber] = this->setPoint[jointNumber];
+		this->previousTime[jointNumber] = now;
 	}
-	else
-	{
-		motorSpeed = previousMotorSpeed[jointNumber];
-	}
 
-	return motorSpeed;
+	Serial.print(", previousTime: ");
+	Serial.print(this->previousTime[jointNumber]);
+
+	Serial.print(", motorSpeed: ");
+	Serial.print(this->motorSpeed[jointNumber]);
+
+	Serial.print(", error: ");
+	Serial.println(this->getAngleError(jointNumber, currentAngle));
+
+	return this->motorSpeed[jointNumber];
 }
 
-void PIMotorSpeed::setIntegralGain(int jointNumber, float newintegralgain)
+void PIMotorSpeed::setIntegralGain(int jointNumber, double newintegralgain)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	newintegralgain = constrain(newintegralgain, 0.0, 5.0);
 
-	this->integralGain[jointNumber] = newintegralgain;
+	double sampleTimeSeconds = ((double)this->sampleTime) / 1000.0;
+
+	this->integralGain[jointNumber] = newintegralgain * sampleTimeSeconds;
 }
 
-float PIMotorSpeed::getIntegralGain(int jointNumber)
+double PIMotorSpeed::getIntegralGain(int jointNumber)
 {
-	return integralGain[jointNumber];
+	double sampleTimeSeconds = ((double)this->sampleTime) / 1000.0;
+
+	return integralGain[jointNumber] / sampleTimeSeconds;
 }

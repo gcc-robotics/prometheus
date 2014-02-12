@@ -6,15 +6,20 @@
 class PIMotorSpeed : public PMotorSpeed
 {
 	private:
-		long int previousTime;
-		int previousMotorSpeed[5];
-		float integralGain[5];
+		unsigned long previousTime[5];
+		double ITerm[5];
+		double integralGain[5];
+		double previousSetPoint[5];
+		double motorSpeed[5];
+
+	protected:
+		unsigned long sampleTime;
 
 	public:
 		PIMotorSpeed();
-		int calculate(int jointNumber, float currentAngle);
-		void setIntegralGain(int jointNumber, float newintegralgain);
-		float getIntegralGain(int jointNumber);
+		int calculate(int jointNumber, double currentAngle);
+		void setIntegralGain(int jointNumber, double newintegralgain);
+		double getIntegralGain(int jointNumber);
 };
 
 #endif
