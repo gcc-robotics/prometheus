@@ -177,8 +177,8 @@ function PrometheusViewModel()
 	// Data
 	var self = this;
 	self.socket = null;
-	//self.socketServer = 'ws://10.33.0.2:8888/';
-	self.socketServer = 'ws://localhost:8888/';
+	self.socketServer = 'ws://10.33.0.2:8888/';
+	//self.socketServer = 'ws://localhost:8888/';
 
 	// Enabled Setting
 	self.textEnabled = ko.observable("off");
