@@ -92,6 +92,12 @@ class PrometheusSerial:
 						jsonData['angle'] = data[2]
 
 						self.writeToSocket(json.dumps(jsonData))
+					
+					elif command == "jointSetPoint":
+						jsonData["jointNumber"] = data[1]
+						jsonData['setPoint'] = data[2]
+
+						self.writeToSocket(json.dumps(jsonData))
 
 					elif command == "jointLimits":
 						jsonData["jointNumber"] = data[1]

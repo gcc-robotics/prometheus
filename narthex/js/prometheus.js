@@ -81,10 +81,10 @@ ko.bindingHandlers.commandConsoleKeyActions =
 	}
 };
 
-function Joint(data, socket)
+function Joint(data, viewModel)
 {
 	var self = this;
-	self.socket = socket;
+	self.viewModel = viewModel;
 	
 	self.title = data.title;
 	self.jointNumber = ko.observable(data.jointNumber);
@@ -99,30 +99,60 @@ function Joint(data, socket)
 	self.currentAngle = ko.observable(self.min() - self.max() / 2);
 	self.angleError = ko.observable(0);
 
-	self.PGain = ko.observable(1.0);
-	self.IGain = ko.observable(1.0);
-	self.DGain = ko.observable(1.0);
+	self.PGain = ko.observable(1);
+	self.IGain = ko.observable(1);
+	self.DGain = ko.observable(1);
+	
+	// Setpoint received from serial
+	self.serialSetPoint = ko.observable((self.setPoint() != 1) ? 1 : 0);
+	self.serialSetPoint.subscribe(function()
+	{
+		self.setPoint(self.serialSetPoint());
+	});
 	
 	// Subscribe to changes in the setpoint so we can send the updates to the 
 	// Arduino using the socket
 	self.setPoint.subscribe(function()
 	{		
-		if(vm.enabled())
+		if(self.viewModel.enabled())
 		{
-			var command = ko.toJSON(
+			if(self.setPoint() != self.serialSetPoint())
+			{
+				var command = ko.toJSON(
 				{
 					command: "setJointAngle",
 					jointNumber: self.jointNumber(), 
 					angle: self.setPoint()
 				});
 
-			console.log(command);
+				console.log(command);
 
-			socket.send(command);
+				self.viewModel.socket.send(command);
+			}
 		}
 		else
 		{
 			console.log("Manual control disabled.")
+		}
+	});
+	
+	// Use a computed property to update the Arduino whenever any of the gains change
+	ko.computed(function()
+	{
+		if(self.viewModel.enabled() && self.viewModel.PIDTuningEnabled())
+		{
+			var command = ko.toJSON(
+				{
+					command: "setJointGains",
+					jointNumber: self.jointNumber(), 
+					PGain: parseFloat(self.PGain()).toPrecision(3),
+					IGain: parseFloat(self.IGain()).toPrecision(3),
+					DGain: parseFloat(self.DGain()).toPrecision(3)
+				});
+
+			console.log(command);
+
+			self.viewModel.socket.send(command);
 		}
 	});
 }
@@ -147,22 +177,69 @@ function PrometheusViewModel()
 	// Data
 	var self = this;
 	self.socket = null;
-	self.socketServer = 'ws://10.33.0.2:8888/';
-	// self.socketServer = 'ws://localhost:8888/';
+	//self.socketServer = 'ws://10.33.0.2:8888/';
+	self.socketServer = 'ws://localhost:8888/';
 
-
+	// Enabled Setting
 	self.textEnabled = ko.observable("off");
 	self.enabled = ko.computed(function()
 	{
 		return self.textEnabled() == "on" ? true : false;
 	});
 	
+	// Settings Screen Stuff
+	self.Render3DEnabledText = ko.observable("on");
+	self.Render3DEnabled = ko.computed(function()
+	{
+		return self.Render3DEnabledText() == "on" ? true : false;
+	});
+	
+	self.Rotate3DEnabledText = ko.observable("off");
+	self.Rotate3DEnabled = ko.computed(function()
+	{
+		return self.Rotate3DEnabledText() == "on" ? true : false;
+	});
+	
+	self.PIDTuningEnabledText = ko.observable("off");
+	self.PIDTuningEnabled = ko.computed(function()
+	{
+		return self.PIDTuningEnabledText() == "on" ? true : false;
+	});
+	
+	self.CommandConsoleEnabledText = ko.observable("off");
+	self.CommandConsoleEnabled = ko.computed(function()
+	{
+		return self.CommandConsoleEnabledText() == "on" ? true : false;
+	});
+	
+	// Joints array
 	self.joints = ko.observableArray([]);
 	
 	// Command Console Data
 	self.commandText = ko.observable().extend({ notify: 'always' });
 	self.commandHistory = ko.observableArray();
 	self.commandPosition = 0;
+	
+	// 3D Rendering
+	self.init3D = function()
+	{
+		self.renderer = new RobotArm(self);
+		
+		ko.computed(function()
+		{
+			self.updateRenderer();
+		}).extend({throttle: 100});
+		
+		self.updateRenderer();
+	};
+	
+	self.updateRenderer = function()
+	{
+		if(self.Render3DEnabled())
+		{
+			self.renderer.init();
+		}
+	};
 
 	// Socket
 	self.initSocket = function()
@@ -172,12 +249,33 @@ function PrometheusViewModel()
 		self.socket.onopen = function()
 		{
 			console.log('Socket Connected!');
+			
+			for(var i = 0; i < self.joints().length; i++)
+			{
+				var command = ko.toJSON(
+				{
+					command: "getJointGains",
+					jointNumber: i
+				});
+				
+				console.log(command);
+				self.socket.send(command);
+				
+				var command = ko.toJSON(
+				{
+					command: "getJointLimits",
+					jointNumber: i
+				});
+				
+				console.log(command);
+				self.socket.send(command);
+			};
 		};
 
 		self.socket.onclose = function()
 		{
 			console.log('Socket connection lost!');
-			socket.close();
+			self.socket.close();
 		};
 
 		self.socket.onmessage = function(event)
@@ -223,6 +321,10 @@ function PrometheusViewModel()
 					self.joints()[json.jointNumber].currentAngle(json.angle);
 					break;
 				
+				case "jointSetPoint":
+					self.joints()[json.jointNumber].serialSetPoint(json.setPoint);
+					break;
+				
 				case "jointLimits":
 					self.joints()[json.jointNumber].min(json.min);
 					self.joints()[json.jointNumber].max(json.max);
@@ -246,7 +348,7 @@ function PrometheusViewModel()
 		}
 	};
 	
-	// Operations
+	// Command Console
 	self.sendCommand = function()
 	{
 		var command = self.commandText();
@@ -354,18 +456,17 @@ function PrometheusViewModel()
 		}
 	};
 
+	// Other
 	self.addJoint = function(data)
 	{
-		self.joints.push(new Joint(data, self.socket));
+		self.joints.push(new Joint(data, self));
 	};
 
 	self.initSocket();
+	self.init3D();
 }
 
 var vm = new PrometheusViewModel()
-
-var arm = new RobotArm(vm);
-arm.init();
 
 vm.addJoint({
 	title: "Base",

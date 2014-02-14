@@ -1,6 +1,9 @@
 function RobotArm(viewModel)
 {
 	var self = this;
+	self.initialized = false;
+	self.ready = false;
+	self.animationFrameRequestId = 0;
 	
 	self.viewModel = viewModel;
 
@@ -18,80 +21,91 @@ function RobotArm(viewModel)
 	// Methods
 	self.init = function()
 	{
-		// Enable auto-resizing of the renderer canvas
-		self.startAutoResize();
-		
-		// Camera
-		self.camera = new THREE.PerspectiveCamera(45, self.width / self.height, 0.1, 10000);
-		self.camera.position.z = self.cameraDistance;
-		self.camera.position.y = 500;
+		if(self.initialized === true)
+		{
+			self.requestAnimationFrame();
+		}
+		else
+		{
+			self.initialized = true;
+			
+			// Renderer
+			self.renderer = new THREE.WebGLRenderer();
+			self.renderer.setSize(self.width, self.height);
 
-		// Scene
-		self.scene = new THREE.Scene();
+			self.container.get(0).appendChild(self.renderer.domElement);
+			
+			// Camera
+			self.camera = new THREE.PerspectiveCamera(45, self.width / self.height, 0.1, 10000);
+			self.camera.position.z = self.cameraDistance;
+			self.camera.position.y = self.cameraDistance;
+			self.camera.lookAt(new THREE.Vector3(0, 300, 0));
+			
+			// Enable auto-resizing of the renderer canvas
+			self.startAutoResize();
 
-		// Renderer
-		self.renderer = new THREE.WebGLRenderer();
-		self.renderer.setSize(self.width, self.height);
+			// Scene
+			self.scene = new THREE.Scene();
 
-		self.container.get(0).appendChild(self.renderer.domElement);
+			// Material
+			self.material =
+				new THREE.MeshLambertMaterial(
+				{
+					color: 0xCC0000
+				});
 
-		// Material
-		self.material =
-			new THREE.MeshLambertMaterial(
+			// First Light
+			var light = new THREE.PointLight(0xFFFFFF);
+
+			light.position.x = 0;
+			light.position.z = self.cameraDistance;
+			light.position.y = self.cameraDistance * 1.5;
+			self.scene.add(light);
+			
+			// Second Light
+			light = light.clone();
+			light.position.z = -self.cameraDistance;
+			self.scene.add(light);
+			
+			// Ground Plane
+			self.ground = new THREE.Mesh(new THREE.PlaneGeometry(5000, 5000, 40, 40), new THREE.MeshBasicMaterial({ wireframe: true, color: 0x999999 }));
+			self.ground.rotation.x = Math.PI / 2;
+			self.scene.add(self.ground);
+
+			// Init STL Loader
+			self.loader = new THREE.STLLoader();
+
+			self.loader.addEventListener('load', function(event)
 			{
-				color: 0xCC0000
+				var geometry = event.content;
+				var mesh = new THREE.Mesh(geometry, self.material);
+				mesh.name = geometry.name;
+
+				self.mesh[mesh.name] = mesh;
+				
+				self.meshesLoaded += 1;
+				
+				if(self.meshesLoaded == self.meshesToLoad)
+				{
+					self.loadingComplete();
+				}
 			});
 
-		// First Light
-		var light = new THREE.PointLight(0xFFFFFF);
-
-		light.position.x = 0;
-		light.position.z = self.cameraDistance;
-		light.position.y = self.cameraDistance * 1.5;
-		self.scene.add(light);
-		
-		// Second Light
-		light = light.clone();
-		light.position.z = -self.cameraDistance;
-		self.scene.add(light);
-		
-		// Ground Plane
-		self.ground = new THREE.Mesh(new THREE.PlaneGeometry(5000, 5000, 40, 40), new THREE.MeshBasicMaterial({ wireframe: true, color: 0x999999 }));
-		self.ground.rotation.x = Math.PI / 2;
-		self.scene.add(self.ground);
-
-		// Init STL Loader
-		self.loader = new THREE.STLLoader();
-
-		self.loader.addEventListener('load', function(event)
-		{
-			var geometry = event.content;
-			var mesh = new THREE.Mesh(geometry, self.material);
-			mesh.name = geometry.name;
-
-			self.mesh[mesh.name] = mesh;
+			// Load STL Files
+			self.meshesToLoad = 5;
 			
-			self.meshesLoaded += 1;
-			
-			if(self.meshesLoaded == self.meshesToLoad)
-			{
-				self.loadingComplete();
-			}
-		});
-
-		// Load STL Files
-		self.meshesToLoad = 5;
-		
-		self.loader.load('./models/base.stl');
-		self.loader.load('./models/torso.stl');
-		self.loader.load('./models/humerus.stl');
-		self.loader.load('./models/forearm-back.stl');
-		self.loader.load('./models/forearm-front.stl');
+			self.loader.load('./models/base.stl');
+			self.loader.load('./models/torso.stl');
+			self.loader.load('./models/humerus.stl');
+			self.loader.load('./models/forearm-back.stl');
+			self.loader.load('./models/forearm-front.stl');
+		}
 	}
 	
 	self.startAutoResize = function()
 	{
 		window.addEventListener('resize', self.autoResizeCallback, false);
+		self.autoResizeCallback();
 	}
 	
 	self.stopAutoResize = function()
@@ -196,27 +210,43 @@ function RobotArm(viewModel)
 		console.log('3D: Mesh loading complete!');
 		
 		// Start the animation
-		self.animate();	
+		self.ready = true;
+		self.requestAnimationFrame();
 	}
 	
 	self.animate = function()
 	{
-		requestAnimationFrame(self.animate);
+		if(self.viewModel.Render3DEnabled() && self.ready === true)
+		{
+			self.requestAnimationFrame();
 		
-		// Move meshes according to the current joint angles
-		self.mesh['torso'].rotation.y = self.viewModel.joints()[0].currentAngle() / 180 * Math.PI;
-		self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].currentAngle() / 180 * Math.PI;
-		self.mesh['forearm-back'].rotation.x = self.viewModel.joints()[2].currentAngle() / 180 * Math.PI;
-		self.mesh['forearm-front'].rotation.z = self.viewModel.joints()[3].currentAngle() / 180 * Math.PI;
-		
-		// Rotate camera around 0,300,0
-		// self.cameraIterator += 0.01;
-		// self.camera.position.x = Math.sin(self.cameraIterator) * self.cameraDistance;
-		// self.camera.position.z = Math.cos(self.cameraIterator) * self.cameraDistance;
-		// self.camera.position.x = Math.sin(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
-		// self.camera.position.z = Math.cos(self.viewModel.joints()[4].setPoint() / 180 * Math.PI) * self.cameraDistance;
-		// self.camera.lookAt(new THREE.Vector3(0, 300, 0)); // 0, 300, 0
-		
-		self.renderer.render(self.scene, self.camera);
+			// Move meshes according to the current joint angles
+			self.mesh['torso'].rotation.y = self.viewModel.joints()[0].currentAngle() / 180 * Math.PI;
+			self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].currentAngle() / 180 * Math.PI;
+			self.mesh['forearm-back'].rotation.x = self.viewModel.joints()[2].currentAngle() / 180 * Math.PI;
+			self.mesh['forearm-front'].rotation.z = self.viewModel.joints()[3].currentAngle() / 180 * Math.PI;
+			
+			if(self.viewModel.Rotate3DEnabled())
+			{
+				// Rotate camera around 0,300,0
+				self.cameraIterator += 0.3;
+				self.camera.position.x = Math.sin(self.cameraIterator / 180 * Math.PI) * self.cameraDistance;
+				self.camera.position.z = Math.cos(self.cameraIterator / 180 * Math.PI) * self.cameraDistance;
+				self.camera.lookAt(new THREE.Vector3(0, 300, 0)); // 0, 300, 0
+			}
+			
+			self.renderer.render(self.scene, self.camera);
+			self.animationFrameRequestId = 0;
+		}
 	}
+	
+	self.requestAnimationFrame = function()
+	{
+		if(self.animationFrameRequestId != 0)
+		{
+			window.cancelAnimationFrame(self.animationFrameRequestId);
+		}
+		
+		self.animationFrameRequestId = window.requestAnimationFrame(self.animate);
+	};
 }
