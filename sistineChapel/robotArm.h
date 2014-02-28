@@ -8,6 +8,10 @@
 class RobotArm 
 {
 	private:
+		// Interrupt
+		volatile bool emergencyState;
+		int interruptPinNumber;
+
 		// Input/Output numbers
 		int motorNumber[5];
 		int encoderNumber[5];
@@ -24,6 +28,9 @@ class RobotArm
 		bool moveJointToSetPoint(int jointNumber);
 
 	public:	
+		// Interrupt
+		int interruptNumber;
+
 		// Constructor
 		RobotArm();
 
@@ -36,6 +43,12 @@ class RobotArm
 		 * return void
 		 */
 		void setup();
+
+		/* Called whenever the interrupt changes state
+		* No Input
+		* return void
+		*/
+		void interruptResponder();
 
 		/* Set joint setPoint
 		 * input jointNumber = 0 to 4

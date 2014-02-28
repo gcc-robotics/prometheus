@@ -38,8 +38,8 @@ int PIMotorSpeed::calculate(int jointNumber, double currentAngle)
 {
 	unsigned long now = millis();
 
-	Serial.print("Moving Joint: ");
-	Serial.print(jointNumber);
+	// Serial.print("Moving Joint: ");
+	// Serial.print(jointNumber);
 
 	if(now - this->previousTime[jointNumber] > this->sampleTime)
 	{
@@ -61,14 +61,14 @@ int PIMotorSpeed::calculate(int jointNumber, double currentAngle)
 		this->previousTime[jointNumber] = now;
 	}
 
-	Serial.print(", previousTime: ");
-	Serial.print(this->previousTime[jointNumber]);
+	// Serial.print(", previousTime: ");
+	// Serial.print(this->previousTime[jointNumber]);
 
-	Serial.print(", motorSpeed: ");
-	Serial.print(this->motorSpeed[jointNumber]);
+	// Serial.print(", motorSpeed: ");
+	// Serial.print(this->motorSpeed[jointNumber]);
 
-	Serial.print(", error: ");
-	Serial.println(this->getAngleError(jointNumber, currentAngle));
+	// Serial.print(", error: ");
+	// Serial.println(this->getAngleError(jointNumber, currentAngle));
 
 	return this->motorSpeed[jointNumber];
 }

@@ -23,9 +23,13 @@ void setup()
 	// arm controls work better while the debugger is active
 	Serial.setTimeout(50);
 
+	// Setup the arm
 	arm.setup();
 	commandProcessor.setup(&arm);
 	debug.setup(arm.getMultiplexer(), arm.getMotorController(), &arm);
+
+	// Interrupt
+	attachInterrupt(arm.interruptNumber, globalInterruptResponder, CHANGE);
 
 	// Set a random setPoint for the elbow
 	//randomSeed(analogRead(A3));
@@ -41,4 +45,9 @@ void loop()
 	{
 		debug.loop();
 	}
+}
+
+void globalInterruptResponder()
+{
+	arm.interruptResponder();
 }

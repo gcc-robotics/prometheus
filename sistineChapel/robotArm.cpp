@@ -31,11 +31,25 @@ void RobotArm::setup()
 	this->encoderNumber[3] = 3;
 	this->encoderNumber[4] = 4;
 
+	// Interrupt 
+	this->emergencyState = false;
+	this->interruptNumber = 1;
+	this->interruptPinNumber = 3;
+
+	pinMode(this->interruptPinNumber, INPUT);
+
+	// Create and setup member objects
 	this->mux = Multiplexer();
 	this->motor = MotorController();
 	this->motorSpeed = PIMotorSpeed();
 
 	this->motor.setup();
+}
+
+void RobotArm::interruptResponder()
+{
+	// Get the state of the interrupt pin
+	this->emergencyState = digitalRead(this->interruptPinNumber);
 }
 
 Multiplexer* RobotArm::getMultiplexer()
@@ -120,18 +134,30 @@ void RobotArm::hand(float targetAngle)
 
 void RobotArm::loop()
 {
-	// // Waist
-	// this->moveJointToSetPoint(0);
+	if(!this->emergencyState)
+	{
+		// Waist
+		this->moveJointToSetPoint(0);
 
-	// // Shoulder
-	// this->moveJointToSetPoint(1);
+		// Shoulder
+		this->moveJointToSetPoint(1);
 
-	// // Elbow
-	// this->moveJointToSetPoint(2);
+		// Elbow
+		this->moveJointToSetPoint(2);
 
-	// Wrist
-	this->moveJointToSetPoint(3);
+		// Wrist
+		this->moveJointToSetPoint(3);
 
-	// // Hand
-	// this->moveJointToSetPoint(4);
+		// Hand
+		this->moveJointToSetPoint(4);
+	}
+	else
+	{
+		// Emergency State is Active!
+		// Coast for now, brake when we have fuses
+		for(int i = 0; i < 5; i++)
+		{
+			this->motor.coast(this->motorNumber[i]);
+		}
+	}
 }
