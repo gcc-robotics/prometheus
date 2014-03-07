@@ -3,7 +3,28 @@ Prometheus
 
 The Prometheus is a robotic arm project created by the [Glendale Community College Robotics Academy][0].
 
-This repository currently contains the software for the Arduino and the the software and the setup guide for the Raspberry Pi.
+This repository contains the software, electronics schematics, and mechanical models for the Prometheus.
+
+Prometheus Startup Procedure
+----------------------------
+1. Make sure the hardware and electronics are hooked up connected correctly.
+2. Power up the Raspberry Pi, Router, and only the 5V rail for the electronics board.
+   __Do not turn on the 12V rail!__
+3. Connect a computer to the router either by ethernet or WiFi. The WiFi info is on the router.
+4. SSH into the RaspberryPi. On Linux or OSX you can use the following command:
+
+		ssh prometheus@10.33.0.2
+   
+   The password is on the RaspberryPi.
+
+5. Once you are connected to the RaspberryPi run the following commands:
+
+		cd /home/prometheus/prometheus/software/narthex/
+        sudo python server.py
+
+6. Now on a computer, tablet, or phone connected to the Prometheus network, open a browser and go to:
+
+		10.33.0.2
 
 Sistine Chapel - Arduino Software
 ---------------------------------
@@ -27,14 +48,6 @@ Narthex - Raspberry Pi Software
 The __narthex__ subdirectory contains the software to be run on the Raspberry Pi. 
 
 The software runs a simple web server to serve a static web page with controls for Prometheus enabling remote control.
-
-### Todo
-
-- [x] Make simple web server to server the remote control interface and act on json requests
-- [ ] Write class for Arduino to process the commands from the web server
-- [ ] Test the serial communication between the server script and the Arduino
-- [ ] Add WebGL rendering of the arm based on the set points
-- [ ] Send information back to the remote control interface about the current status of the arm
 
 ### Links
 
