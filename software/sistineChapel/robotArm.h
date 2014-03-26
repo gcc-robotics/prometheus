@@ -15,6 +15,7 @@ class RobotArm
 		// Input/Output numbers
 		int motorNumber[5];
 		int encoderNumber[5];
+		float encoderOffset[5]; 
 
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;

@@ -91,8 +91,15 @@ double PMotorSpeed::getJointMax(int jointNumber)
 
 double PMotorSpeed::getAngleError(int jointNumber, double currentAngle)
 {
+
 	double targetAngle = this->setPoint[jointNumber];
 
+	double angleError;
+
+	angleError = targetAngle - currentAngle;
+
+	return angleError;
+	/*
 	// Shift target angle to -180 to 180
 	targetAngle -= 180.0;
 
@@ -120,5 +127,5 @@ double PMotorSpeed::getAngleError(int jointNumber, double currentAngle)
 		angleError += 360.0;
 	}
 
-	return fmod(angleError, 360);
+	return fmod(angleError, 360);*/
 }

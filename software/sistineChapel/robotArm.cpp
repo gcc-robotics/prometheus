@@ -31,6 +31,13 @@ void RobotArm::setup()
 	this->encoderNumber[3] = 3;
 	this->encoderNumber[4] = 4;
 
+	// Encoder offsets
+	this->encoderOffset[0] = 0;
+	this->encoderOffset[1] = 0;
+	this->encoderOffset[2] = 0;
+	this->encoderOffset[3] = 0;
+	this->encoderOffset[4] = 0;
+
 	// Interrupt 
 	this->emergencyState = false;
 	this->interruptNumber = 1;
@@ -94,7 +101,14 @@ void RobotArm::setJointAngle(int jointNumber, float angle)
 
 int RobotArm::getJointAngle(int jointNumber)
 {
-	return this->mux.readEncoder(this->encoderNumber[jointNumber]);
+	float encoderOutput = this->mux.readEncoder(this->encoderNumber[jointNumber]) - encoderOffset[jointNumber];
+	
+	while(encoderOutput < 0)
+	{
+		encoderOutput + 360;
+	}
+	
+	return encoderOutput;
 }
 
 float RobotArm::getJointMinimum(int jointNumber)
