@@ -127,7 +127,14 @@ function Joint(data, viewModel)
 
 				console.log(command);
 
-				self.viewModel.socket.send(command);
+				try 
+				{
+					self.viewModel.socket.send(command);
+				}
+				catch(exception)
+				{
+					console.log("WebSocket Send Failed: " + exception);
+				}
 			}
 		}
 		else
@@ -154,6 +161,12 @@ function Joint(data, viewModel)
 
 			self.viewModel.socket.send(command);
 		}
+	});
+
+	// Rounded setpoint for the text
+	self.setPointRounded = ko.computed(function()
+	{
+		return Math.round(self.setPoint());
 	});
 }
 
@@ -210,6 +223,12 @@ function PrometheusViewModel()
 	self.CommandConsoleEnabled = ko.computed(function()
 	{
 		return self.CommandConsoleEnabledText() == "on" ? true : false;
+	});
+
+	self.armDemoEnabledText = ko.observable("off");
+	self.armDemoEnabled = ko.computed(function()
+	{
+		return self.armDemoEnabledText() == "on" ? true : false;
 	});
 	
 	// Joints array

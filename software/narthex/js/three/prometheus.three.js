@@ -10,13 +10,30 @@ function RobotArm(viewModel)
 	self.container = $('#3d-prometheus-container');
 	self.width = 970;
 	self.height = 500;
+
+	self.demoIterators = 
+	{
+		0: -1,
+		1: -1,
+		2: -1,
+		3: -1,
+		4: -1
+	};
+
+	self.demoDirections = 
+	{
+		0: 1,
+		1: 1,
+		2: 1,
+		3: 1,
+		4: 1
+	};
 	
 	self.cameraIterator = 0;
 	self.cameraDistance = 750;
 
-	self.mesh = {};
-	self.meshesToLoad = 0;
-	self.meshesLoaded = 0;
+	self.geometriesToLoad = 0;
+	self.geometriesLoaded = 0;
 	
 	// Methods
 	self.init = function()
@@ -47,11 +64,19 @@ function RobotArm(viewModel)
 			// Scene
 			self.scene = new THREE.Scene();
 
-			// Material
-			self.material =
+			// Materials
+			self.actualPositionArmMaterial =
 				new THREE.MeshLambertMaterial(
 				{
 					color: 0xCC0000
+				});
+
+			self.setPointPositionArmMaterial =
+				new THREE.MeshLambertMaterial(
+				{
+					color: 0xCCCCCC,
+					transparent: true,
+					opacity: 0.5
 				});
 
 			// First Light
@@ -72,27 +97,37 @@ function RobotArm(viewModel)
 			self.ground.rotation.x = Math.PI / 2;
 			self.scene.add(self.ground);
 
+			// Arm Mesh Groups
+			self.actualPositionArm = new THREE.Object3D();
+			self.actualPositionArm.parts = {};
+			self.setPointPositionArm = new THREE.Object3D();
+			self.setPointPositionArm.parts = {};
+
 			// Init STL Loader
 			self.loader = new THREE.STLLoader();
 
 			self.loader.addEventListener('load', function(event)
 			{
 				var geometry = event.content;
-				var mesh = new THREE.Mesh(geometry, self.material);
-				mesh.name = geometry.name;
 
-				self.mesh[mesh.name] = mesh;
+				var mesh = new THREE.Mesh(geometry, self.actualPositionArmMaterial);
+				mesh.name = geometry.name;
+				self.actualPositionArm.parts[mesh.name] = mesh;
+
+				var mesh = new THREE.Mesh(geometry.clone(), self.setPointPositionArmMaterial);
+				mesh.name = geometry.name;
+				self.setPointPositionArm.parts[mesh.name] = mesh;
+
+				self.geometriesLoaded += 1;
 				
-				self.meshesLoaded += 1;
-				
-				if(self.meshesLoaded == self.meshesToLoad)
+				if(self.geometriesLoaded == self.geometriesToLoad)
 				{
 					self.loadingComplete();
 				}
 			});
 
 			// Load STL Files
-			self.meshesToLoad = 5;
+			self.geometriesToLoad = 5;
 			
 			self.loader.load('./models/base.stl');
 			self.loader.load('./models/torso.stl');
@@ -100,18 +135,18 @@ function RobotArm(viewModel)
 			self.loader.load('./models/forearm-back.stl');
 			self.loader.load('./models/forearm-front.stl');
 		}
-	}
+	};
 	
 	self.startAutoResize = function()
 	{
 		window.addEventListener('resize', self.autoResizeCallback, false);
 		self.autoResizeCallback();
-	}
+	};
 	
 	self.stopAutoResize = function()
 	{
 		window.removeEventListener('resize', self.autoResizeCallback);
-	}
+	};
 	
 	self.autoResizeCallback = function()
 	{
@@ -119,7 +154,7 @@ function RobotArm(viewModel)
 		
 		self.camera.aspect = self.container.width() / self.container.height();
 		self.camera.updateProjectionMatrix();
-	}
+	};
 	
 	self.addLine = function(parent, start, end)
 	{
@@ -131,88 +166,101 @@ function RobotArm(viewModel)
 		geometry.vertices.push(end);
 		
 		parent.add(new THREE.Line(geometry, material));
-	}
+	};
 	
 	self.loadingComplete = function()
 	{
-		// Add base to scene
-		self.scene.add(self.mesh['base']);
-		
-		// Move the axis of rotation for the base to it's center
-		// Base Bounding box size: ~152.34, ~143.65, ~152.40
-		self.mesh['base'].geometry.computeBoundingBox();
-		var bb = self.mesh['base'].geometry.boundingBox;
-		var offset = new THREE.Vector3();
-		offset.addVectors(bb.min, bb.max);
-		offset.multiplyScalar(-0.5);
-		self.mesh['base'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 0, offset.z));
-		self.mesh['base'].geometry.computeBoundingBox();
-		
-		// Add torso to base
-		//self.scene.add(self.mesh['torso']);
-		self.mesh['base'].add(self.mesh['torso']);
-		
-		// Move the axis of rotation for the torso to the center of it's base
-		// Torso Bounding box size: ~152.36, ~325.48, ~152.40
-		self.mesh['torso'].geometry.computeBoundingBox();
-		var bb = self.mesh['torso'].geometry.boundingBox;
-		var offset = new THREE.Vector3();
-		offset.addVectors(bb.min, bb.max);
-		offset.multiplyScalar(-0.5);
-		self.mesh['torso'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 144, offset.z));
-		self.mesh['torso'].geometry.computeBoundingBox();
-		
-		// Add humerus to torso
-		self.mesh['torso'].add(self.mesh['humerus']);
-		
-		// Move the axis of rotation for the humerus
-		// Humerus Bounding Box Size: ~114.30, ~352.95, ~217.95
-		self.mesh['humerus'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(-57.15, -328, -193));
-		self.mesh['humerus'].geometry.computeBoundingBox();
-		
-		// Move humerus to the correct position
-		// The axis for jointing the torso to the humerus is 425 up from the center of base
-		self.mesh['humerus'].position.y = 425;
-		
-		// Add the back of the forearm to the humerus
-		self.mesh['humerus'].add(self.mesh['forearm-back']);
-		
-		// Move the axis of rotation for forearm-back
-		// forearm-back Bounding Box Size: ~88.90, ~88.90, ~215.12
-		self.mesh['forearm-back'].geometry.computeBoundingBox();
-		var bb = self.mesh['forearm-back'].geometry.boundingBox;
-		var offset = new THREE.Vector3();
-		offset.addVectors(bb.min, bb.max);
-		offset.multiplyScalar(-0.5);
-		self.mesh['forearm-back'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, offset.y, -195));
-		self.mesh['forearm-back'].geometry.computeBoundingBox();
-		
-		// Move forearm-back to the correct position
-		self.mesh['forearm-back'].position.y = -290;
-		self.mesh['forearm-back'].position.z = -136;
-		
-		// Add the front of the forearm to the forearm-back
-		self.mesh['forearm-back'].add(self.mesh['forearm-front']);
-		
-		// Move the axis of rotation for forearm-front
-		THREE.GeometryUtils.center(self.mesh['forearm-front'].geometry);
-		
-		// Move forearm-front to the correct position
-		self.mesh['forearm-front'].position.z = -266.5; // -265
+		self.setupArmParts(self.actualPositionArm);
+		self.scene.add(self.actualPositionArm);
 
-		
-		// Add lines for axes of rotation
-		self.addLine(self.scene, new THREE.Vector3(0, 69, 0), new THREE.Vector3(0, 219, 0));
-		self.addLine(self.mesh['torso'], new THREE.Vector3(100, 425, 0), new THREE.Vector3(-100, 425, 0));
-		self.addLine(self.mesh['humerus'], new THREE.Vector3(100, -290, -135), new THREE.Vector3(-100, -290, -138));
-		self.addLine(self.mesh['forearm-back'], new THREE.Vector3(0, 0, -238), new THREE.Vector3(0, 0, -138));
+		self.setupArmParts(self.setPointPositionArm, false);
+		self.scene.add(self.setPointPositionArm);
 
-		console.log('3D: Mesh loading complete!');
+		console.log('3D: Loading complete!');
 		
 		// Start the animation
 		self.ready = true;
 		self.requestAnimationFrame();
-	}
+	};
+
+	self.setupArmParts = function(arm, addAxisLines)
+	{
+		if(typeof(addAxisLines) === 'undefined') addAxisLines = true;
+
+
+		// Add base to the arm
+		arm.add(arm.parts['base']);
+		
+		// Move the axis of rotation for the base to it's center
+		// Base Bounding box size: ~152.34, ~143.65, ~152.40
+		arm.parts['base'].geometry.computeBoundingBox();
+		var bb = arm.parts['base'].geometry.boundingBox;
+		var offset = new THREE.Vector3();
+		offset.addVectors(bb.min, bb.max);
+		offset.multiplyScalar(-0.5);
+		arm.parts['base'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 0, offset.z));
+		arm.parts['base'].geometry.computeBoundingBox();
+		
+		// Add torso to base
+		arm.parts['base'].add(arm.parts['torso']);
+		
+		// Move the axis of rotation for the torso to the center of it's base
+		// Torso Bounding box size: ~152.36, ~325.48, ~152.40
+		arm.parts['torso'].geometry.computeBoundingBox();
+		var bb = arm.parts['torso'].geometry.boundingBox;
+		var offset = new THREE.Vector3();
+		offset.addVectors(bb.min, bb.max);
+		offset.multiplyScalar(-0.5);
+		arm.parts['torso'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, 144, offset.z));
+		arm.parts['torso'].geometry.computeBoundingBox();
+		
+		// Add humerus to torso
+		arm.parts['torso'].add(arm.parts['humerus']);
+		
+		// Move the axis of rotation for the humerus
+		// Humerus Bounding Box Size: ~114.30, ~352.95, ~217.95
+		arm.parts['humerus'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(-57.15, -328, -193));
+		arm.parts['humerus'].geometry.computeBoundingBox();
+		
+		// Move humerus to the correct position
+		// The axis for jointing the torso to the humerus is 425 up from the center of base
+		arm.parts['humerus'].position.y = 425;
+		
+		// Add the back of the forearm to the humerus
+		arm.parts['humerus'].add(arm.parts['forearm-back']);
+		
+		// Move the axis of rotation for forearm-back
+		// forearm-back Bounding Box Size: ~88.90, ~88.90, ~215.12
+		arm.parts['forearm-back'].geometry.computeBoundingBox();
+		var bb = arm.parts['forearm-back'].geometry.boundingBox;
+		var offset = new THREE.Vector3();
+		offset.addVectors(bb.min, bb.max);
+		offset.multiplyScalar(-0.5);
+		arm.parts['forearm-back'].geometry.applyMatrix(new THREE.Matrix4().makeTranslation(offset.x, offset.y, -195));
+		arm.parts['forearm-back'].geometry.computeBoundingBox();
+		
+		// Move forearm-back to the correct position
+		arm.parts['forearm-back'].position.y = -290;
+		arm.parts['forearm-back'].position.z = -136;
+		
+		// Add the front of the forearm to the forearm-back
+		arm.parts['forearm-back'].add(arm.parts['forearm-front']);
+		
+		// Move the axis of rotation for forearm-front
+		THREE.GeometryUtils.center(arm.parts['forearm-front'].geometry);
+		
+		// Move forearm-front to the correct position
+		arm.parts['forearm-front'].position.z = -266.5; // -265
+
+		if(addAxisLines === true)
+		{
+			// Add lines for axes of rotation
+			self.addLine(self.scene, new THREE.Vector3(0, 69, 0), new THREE.Vector3(0, 219, 0));
+			self.addLine(arm.parts['torso'], new THREE.Vector3(100, 425, 0), new THREE.Vector3(-100, 425, 0));
+			self.addLine(arm.parts['humerus'], new THREE.Vector3(100, -290, -135), new THREE.Vector3(-100, -290, -138));
+			self.addLine(arm.parts['forearm-back'], new THREE.Vector3(0, 0, -238), new THREE.Vector3(0, 0, -138));
+		}
+	};
 	
 	self.animate = function()
 	{
@@ -220,11 +268,17 @@ function RobotArm(viewModel)
 		{
 			self.requestAnimationFrame();
 		
-			// Move meshes according to the current joint angles
-			self.mesh['torso'].rotation.y = self.viewModel.joints()[0].currentAngle() / 180 * Math.PI;
-			self.mesh['humerus'].rotation.x = self.viewModel.joints()[1].currentAngle() / 180 * Math.PI;
-			self.mesh['forearm-back'].rotation.x = self.viewModel.joints()[2].currentAngle() / 180 * Math.PI;
-			self.mesh['forearm-front'].rotation.z = self.viewModel.joints()[3].currentAngle() / 180 * Math.PI;
+			// Move actualPositionArm meshes according to the current joint angles
+			self.actualPositionArm.parts['torso'].rotation.y = self.viewModel.joints()[0].currentAngle() / 180 * Math.PI;
+			self.actualPositionArm.parts['humerus'].rotation.x = self.viewModel.joints()[1].currentAngle() / 180 * Math.PI;
+			self.actualPositionArm.parts['forearm-back'].rotation.x = self.viewModel.joints()[2].currentAngle() / 180 * Math.PI;
+			self.actualPositionArm.parts['forearm-front'].rotation.z = self.viewModel.joints()[3].currentAngle() / 180 * Math.PI;
+
+			// Move setPointPositionArm meshes according to the joint set points
+			self.setPointPositionArm.parts['torso'].rotation.y = self.viewModel.joints()[0].setPoint() / 180 * Math.PI;
+			self.setPointPositionArm.parts['humerus'].rotation.x = self.viewModel.joints()[1].setPoint() / 180 * Math.PI;
+			self.setPointPositionArm.parts['forearm-back'].rotation.x = self.viewModel.joints()[2].setPoint() / 180 * Math.PI;
+			self.setPointPositionArm.parts['forearm-front'].rotation.z = self.viewModel.joints()[3].setPoint() / 180 * Math.PI;
 			
 			if(self.viewModel.Rotate3DEnabled())
 			{
@@ -234,11 +288,46 @@ function RobotArm(viewModel)
 				self.camera.position.z = Math.cos(self.cameraIterator / 180 * Math.PI) * self.cameraDistance;
 				self.camera.lookAt(new THREE.Vector3(0, 300, 0)); // 0, 300, 0
 			}
+
+			// Run the demo if it's enabled
+			if(self.viewModel.armDemoEnabled())
+			{
+				for(var i = self.viewModel.joints().length - 1; i >= 0; i--)
+				{
+					var joint = self.viewModel.joints()[i];
+
+					var range = joint.max() - joint.min();
+					var value = joint.min() + (self.demoIterators[i] % range);
+					self.viewModel.joints()[i].setPoint(value);
+				
+					self.demoIterators[i] += self.demoDirections[i] * 0.1;
+
+					if(self.demoIterators[i] > joint.max())
+					{
+						self.demoIterators[i] = joint.max();
+						self.demoDirections[i] *= -1;
+					}
+
+					if(self.demoIterators[i] < joint.min())
+					{
+						self.demoIterators[i] = joint.min();
+						self.demoDirections[i] *= -1;
+					}
+				};
+			}
+			else
+			{
+				for(var i = self.demoIterators.length - 1; i >= 0; i--)
+				{
+					self.demoIterators[i] = -1;
+				};
+			}
 			
+			// Render the scene
 			self.renderer.render(self.scene, self.camera);
 			self.animationFrameRequestId = 0;
 		}
-	}
+	};
 	
 	self.requestAnimationFrame = function()
 	{

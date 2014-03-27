@@ -85,7 +85,7 @@
 				<input type="range" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joint.setPoint, disable: !$parent.enabled(), max: joint.max, min: joint.min, attr: {'id': joint.inputId}" />
 				<div class="row">
 					<div class="large-3 columns"><span data-bind="text: joint.min">0</span>&deg;</div>
-					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joint.setPoint">180</strong>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joint.setPointRounded">180</strong>&deg;</div>
 					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joint.max">360</span>&deg;</div>
 				</div>
 				<!-- ko if: $parent.PIDTuningEnabled() -->
@@ -116,7 +116,7 @@
 				<input type="range" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joint.setPoint, disable: !$parent.enabled(), max: joint.max, min: joint.min, attr: {'id': joint.inputId}" />
 				<div class="row">
 					<div class="large-3 columns"><span data-bind="text: joint.min">0</span>&deg;</div>
-					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joint.setPoint">180</strong>&deg;</div>
+					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joint.setPointRounded">180</strong>&deg;</div>
 					<div class="large-3 columns" style="text-align: right;"><span data-bind="text: joint.max">360</span>&deg;</div>
 				</div>
 				<!-- ko if: $parent.PIDTuningEnabled() -->
@@ -217,18 +217,18 @@
 			</div>
 			<div class="large-3 columns">
 				<div class="switch">
-					<input id="rotate-3d-disable" name="rotate-3d-enable" value="off" type="radio" data-bind="checked: Rotate3DEnabledText" />
+					<input id="arm-demo-disable" name="rotate-3d-enable" value="off" type="radio" data-bind="checked: Rotate3DEnabledText" />
 					<label for="rotate-3d-disable" onclick="" style="padding-left: 10px;">Off</label>
 
 					<input id="rotate-3d-enable" name="rotate-3d-enable" value="on" type="radio" data-bind="checked: Rotate3DEnabledText" />
-					<label for="command-console-enable" onclick="" style="padding-right: 10px;">On</label>
+					<label for="rotate-3d-enable" onclick="" style="padding-right: 10px;">On</label>
 
 					<span></span>
 				</div>
 			</div>
 			
 			<div class="large-3 columns">
-				<label for="pid-tune-disable" class="right inline">Command Console</label>
+				<label for="command-console-disable" class="right inline">Command Console</label>
 			</div>
 			<div class="large-3 columns">
 				<div class="switch">
@@ -240,6 +240,31 @@
 
 					<span></span>
 				</div>
+			</div>
+
+		</div>
+
+		<div class="row">
+			<div class="large-3 columns">
+				<label for="arm-demo-disable" class="right inline">Arm Demo</label>
+			</div>
+			<div class="large-3 columns">
+				<div class="switch">
+					<input id="arm-demo-disable" name="arm-demo-enable" value="off" type="radio" data-bind="checked: armDemoEnabledText" />
+					<label for="arm-demo-disable" onclick="" style="padding-left: 10px;">Off</label>
+
+					<input id="arm-demo-enable" name="arm-demo-enable" value="on" type="radio" data-bind="checked: armDemoEnabledText" />
+					<label for="arm-demo-enable" onclick="" style="padding-right: 10px;">On</label>
+
+					<span></span>
+				</div>
+			</div>
+
+			<div class="large-3 columns">
+				
+			</div>
+			<div class="large-3 columns">
+				
 			</div>
 
 		</div>
