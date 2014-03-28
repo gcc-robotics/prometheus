@@ -154,18 +154,18 @@ void CommandProcessor::getJointError(String command)
 
 void CommandProcessor::setClawState(String command)
 {
-	int commandState = command.substring(13).toInt();
+	int commandState = command.substring(13, 14).toInt();
+
 	if(commandState == 0)
 	{
 		this->arm->openClaw();
 	}
-	else if(commandState == 1)
-	{
-		this->arm->brakeClaw();
-	}
-	else if(commandState == 2);
+	else if(commandState == 2)
 	{
 		this->arm->closeClaw();
 	}
-
+	else
+	{
+		this->arm->brakeClaw();
+	}
 }

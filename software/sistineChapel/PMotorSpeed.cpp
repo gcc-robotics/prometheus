@@ -21,13 +21,13 @@ PMotorSpeed::PMotorSpeed()
 	min[0] = 0.0;
 	min[1] = 0.0;
 	min[2] = 0.0;
-	min[3] = 0.0;
+	min[3] = 20.0;
 	min[4] = 0.0;
 
 	max[0] = 359.9;
 	max[1] = 359.9;
 	max[2] = 359.9;
-	max[3] = 359.9;
+	max[3] = 300.0;
 	max[4] = 359.9;
 }
 

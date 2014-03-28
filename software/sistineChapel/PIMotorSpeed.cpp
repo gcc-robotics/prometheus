@@ -117,5 +117,5 @@ double PIMotorSpeed::getDerivativeGain(int jointNumber)
 {
 	double sampleTimeSeconds = ((double)this->sampleTime) / 1000.0;
 
-	return derivativeGain[jointNumber] / sampleTimeSeconds;
+	return derivativeGain[jointNumber] * sampleTimeSeconds;
 }

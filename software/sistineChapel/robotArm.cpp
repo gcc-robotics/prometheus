@@ -16,11 +16,11 @@ RobotArm::RobotArm()
 void RobotArm::setup()
 {
 	const int numMotors = 5;
-	this->this->openClawPin = 8;
-	this->this->closeClawPin = 9;
+	this->openClawPin = 9;
+	this->closeClawPin = 8;
 
-	pinMode(this->openClawPin, HIGH);
-	pinMode(this->closeClawPin, HIGH);
+	pinMode(this->openClawPin, OUTPUT);
+	pinMode(this->closeClawPin, OUTPUT);
 	
 	// Motor numbers
 	this->motorNumber[0] = 0;
