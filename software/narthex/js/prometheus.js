@@ -481,6 +481,41 @@ function PrometheusViewModel()
 		self.joints.push(new Joint(data, self));
 	};
 
+	// Claw Control
+	self.openClaw = function()
+	{
+		self.sendClawCommand(0);
+	};
+
+	self.stopClaw = function()
+	{
+		self.sendClawCommand(1);
+	};
+
+	self.closeClaw = function()
+	{
+		self.sendClawCommand(2);
+	};
+
+	self.sendClawCommand = function(clawCommand)
+	{
+		if(!isNaN(Number(clawCommand)))
+		{
+			clawCommand = Number(clawCommand);
+		}
+
+		if(clawCommand > 2 || clawCommand < 0)
+		{
+			clawCommand = 1;
+		}
+
+		self.socket.send(ko.toJSON(
+			{
+				command: "setClawState",
+				clawCommand: clawCommand
+			}));
+	};
+
 	self.initSocket();
 	self.init3D();
 }

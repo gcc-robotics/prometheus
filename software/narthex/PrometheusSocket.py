@@ -35,21 +35,23 @@ class PrometheusSocket(protocol.Protocol):
 			
 			if jsonData != {}:
 				try:
-					jointNumber = int(jsonData['jointNumber'])
-
 					# Check if we received a known command
 					if jsonData['command'] == "setJointAngle":
+						jointNumber = int(jsonData['jointNumber'])
 						angle = int(jsonData['angle'])
 
 						self.serial.setJointAngle(jointNumber, angle)
 					
 					elif jsonData['command'] == "getJointAngle":
+						jointNumber = int(jsonData['jointNumber'])
 						self.serial.getJointAngle(jointNumber)
 					
 					elif jsonData['command'] == "getJointLimits":
+						jointNumber = int(jsonData['jointNumber'])
 						self.serial.getJointLimits(jointNumber)
 
 					elif jsonData['command'] == "setJointGains":
+						jointNumber = int(jsonData['jointNumber'])
 						PGain = float(jsonData['PGain'])
 						IGain = float(jsonData['IGain'])
 						DGain = float(jsonData['DGain'])
@@ -57,10 +59,17 @@ class PrometheusSocket(protocol.Protocol):
 						self.serial.setJointGains(jointNumber, PGain, IGain, DGain)
 
 					elif jsonData['command'] == "getJointGains":
+						jointNumber = int(jsonData['jointNumber'])
 						self.serial.getJointGains(jointNumber)
 
 					elif jsonData['command'] == "getjointError":
+						jointNumber = int(jsonData['jointNumber'])
 						self.serial.getjointError(jointNumber)
+
+					elif jsonData['command'] == "setClawState":
+						clawCommand = int(jsonData['clawCommand'])
+
+						self.serial.setClawState(clawCommand)
 
 					else:
 						self.transport.write(json.dumps({'error': 'Unknown command.'}))

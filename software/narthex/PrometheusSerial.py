@@ -151,3 +151,10 @@ class PrometheusSerial:
 	def getJointError(self, jointNumber):
 		if self.connected:
 			self.connection.write("getJointError  " + str(jointNumber))
+
+	def setClawState(self, clawCommand):
+		if self.connected:
+			if clawCommand > 2 or clawCommand < 0:
+				clawCommand = 1
+
+			self.connection.write("setClawState  " + str(clawCommand))
