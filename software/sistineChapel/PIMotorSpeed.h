@@ -13,8 +13,8 @@ class PIMotorSpeed : public PMotorSpeed
 		double motorSpeed[5];
 
 		//Derivative
-		double DTerm[5];
-		double derivativeGain[5];
+		//double DTerm[5];
+		//double derivativeGain[5];
 
 	protected:
 		unsigned long sampleTime;
@@ -26,8 +26,8 @@ class PIMotorSpeed : public PMotorSpeed
 		double getIntegralGain(int jointNumber);
 
 		//Derivative
-		void setDerivativeGain(int jointNumber, double newintegralgain);
-		double getDerivativeGain(int jointNumber);
+		//void setDerivativeGain(int jointNumber, double newintegralgain);
+		//double getDerivativeGain(int jointNumber);
 };
 
 #endif

@@ -55,6 +55,10 @@ void MotorController::reverse(int motorNum)
 
 void MotorController::speed(int motorNumber, int speed)
 {
+	if(motorNumber == 3)
+	{
+		speed = speed / 4;
+	}
 	if(speed > 0)
 	{
 		this->forward(motorNumber);
