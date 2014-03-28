@@ -76,6 +76,12 @@ class RobotArm
 		 */
 		float getJointMaximum(int jointNumber);
 
+		void openClaw();
+
+		void closeClaw();
+
+		void brakeClaw();
+
 		/* Move the waist the the provided angle
 		 * input degrees = 0.0 to 359.9
 		 * return void

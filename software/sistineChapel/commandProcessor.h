@@ -28,6 +28,8 @@ class CommandProcessor
 		void setJointGains(String command);
 		void getJointError(String command);
 
+		void setClawState(String command);
+
 
 		// Loop function for the CommandProcessor
 		// Call in the Arduino loop function
