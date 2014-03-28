@@ -28,6 +28,9 @@ class RobotArm
 		 */
 		bool moveJointToSetPoint(int jointNumber);
 
+		int openClawPin;
+		int closeClawPin;
+
 	public:	
 		// Interrupt
 		int interruptNumber;
