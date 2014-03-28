@@ -44,6 +44,10 @@ void CommandProcessor::loop()
 		{
 			this->getJointError(command);
 		}
+		else if(command.indexOf("setClawState") >= 0)
+		{
+			this->setClawState(command);
+		}
 	}
 
 	if(millis() - lastTime >= 100)
@@ -120,10 +124,11 @@ void CommandProcessor::getJointGains(String command)
 	float IGain = this->arm->getPIMotorSpeed()->getIntegralGain(jointNumber);
 	int newIGain = int(IGain * 100.0);
 
-	float DGain = 0.0;
+	float DGain = this->arm->getPIMotorSpeed()->getDerivativeGain(jointNumber);
 	int newDGain = DGain * 100;
 
-	Serial.println("jointGains " + String(jointNumber) + " " + String(newPGain / 100) + "." + String(newPGain % 100) + " " + String(newIGain / 100) + "." + String(newIGain % 100) + " " + String(newDGain / 100) + "." + String(newDGain % 100));
+	Serial.println("jointGains " + String(jointNumber) + " " + String(newPGain / 100) + "." + String(newPGain % 100) + " " + String(newIGain / 100) + "." 
+		+ String(newIGain % 100) + " " + String(newDGain / 100) + "." + String(newDGain % 100));
 }
 
 void CommandProcessor::setJointGains(String command)
@@ -135,7 +140,7 @@ void CommandProcessor::setJointGains(String command)
 
 	this->arm->getPIMotorSpeed()->setProportionalGain(jointNumber, proportionalgain);
 	this->arm->getPIMotorSpeed()->setIntegralGain(jointNumber, integralgain);
-	//this->arm->setDerivativeGain(jointNumber, derivativegain);
+	this->arm->getPIMotorSpeed()->setDerivativeGain(jointNumber, derivativegain);
 }
 
 void CommandProcessor::getJointError(String command)
@@ -145,4 +150,22 @@ void CommandProcessor::getJointError(String command)
 	int newError = error * 100;
 
 	Serial.println("jointError " + String(jointNumber) + " " + String(newError / 100) + "." + String(abs(newError % 100)));
+}
+
+void CommandProcessor::setClawState(String command)
+{
+	int commandState = command.substring(13).toInt();
+	if(commandState == 0)
+	{
+		this->arm->openClaw();
+	}
+	else if(commandState == 1)
+	{
+		this->arm->brakeClaw();
+	}
+	else if(commandState == 2);
+	{
+		this->arm->closeClaw();
+	}
+
 }

@@ -16,6 +16,11 @@ RobotArm::RobotArm()
 void RobotArm::setup()
 {
 	const int numMotors = 5;
+	const int openClawPin = 8;
+	const int closeClawPin = 9;
+
+	pinMode(openClawPin, HIGH);
+	pinMode(closeClawPin, HIGH);
 	
 	// Motor numbers
 	this->motorNumber[0] = 0;
@@ -30,6 +35,13 @@ void RobotArm::setup()
 	this->encoderNumber[2] = 2;
 	this->encoderNumber[3] = 3;
 	this->encoderNumber[4] = 4;
+
+	// Encoder offsets
+	this->encoderOffset[0] = 0;
+	this->encoderOffset[1] = 0;
+	this->encoderOffset[2] = 0;
+	this->encoderOffset[3] = 0;
+	this->encoderOffset[4] = 0;
 
 	// Interrupt 
 	this->emergencyState = false;
@@ -94,7 +106,14 @@ void RobotArm::setJointAngle(int jointNumber, float angle)
 
 int RobotArm::getJointAngle(int jointNumber)
 {
-	return this->mux.readEncoder(this->encoderNumber[jointNumber]);
+	float encoderOutput = this->mux.readEncoder(this->encoderNumber[jointNumber]) - encoderOffset[jointNumber];
+	
+	while(encoderOutput < 0)
+	{
+		encoderOutput + 360;
+	}
+	
+	return encoderOutput;
 }
 
 float RobotArm::getJointMinimum(int jointNumber)
@@ -105,6 +124,24 @@ float RobotArm::getJointMinimum(int jointNumber)
 float RobotArm::getJointMaximum(int jointNumber)
 {
 	return this->motorSpeed.getJointMax(jointNumber);
+}
+
+void RobotArm::openClaw()
+{
+	digitalWrite(openClawPin, HIGH);
+	digitalWrite(closeClawPin, LOW);
+}
+
+void RobotArm::closeClaw()
+{
+	digitalWrite(openClawPin, LOW);
+	digitalWrite(closeClawPin, HIGH);
+}
+
+void RobotArm::brakeClaw()
+{
+	digitalWrite(openClawPin, LOW);
+	digitalWrite(closeClawPin, LOW);
 }
 
 void RobotArm::waist(float targetAngle)

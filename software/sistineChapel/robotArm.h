@@ -15,6 +15,7 @@ class RobotArm
 		// Input/Output numbers
 		int motorNumber[5];
 		int encoderNumber[5];
+		float encoderOffset[5]; 
 
 		// Instances of the MotorController and Multiplexer
 		MotorController motor;
@@ -74,6 +75,12 @@ class RobotArm
 		 * return int between 0 to 359
 		 */
 		float getJointMaximum(int jointNumber);
+
+		void openClaw();
+
+		void closeClaw();
+
+		void brakeClaw();
 
 		/* Move the waist the the provided angle
 		 * input degrees = 0.0 to 359.9
