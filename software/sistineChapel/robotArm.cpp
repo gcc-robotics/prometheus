@@ -16,11 +16,11 @@ RobotArm::RobotArm()
 void RobotArm::setup()
 {
 	const int numMotors = 5;
-	const int openClawPin = 8;
-	const int closeClawPin = 9;
+	this->this->openClawPin = 8;
+	this->this->closeClawPin = 9;
 
-	pinMode(openClawPin, HIGH);
-	pinMode(closeClawPin, HIGH);
+	pinMode(this->openClawPin, HIGH);
+	pinMode(this->closeClawPin, HIGH);
 	
 	// Motor numbers
 	this->motorNumber[0] = 0;
@@ -128,20 +128,20 @@ float RobotArm::getJointMaximum(int jointNumber)
 
 void RobotArm::openClaw()
 {
-	digitalWrite(openClawPin, HIGH);
-	digitalWrite(closeClawPin, LOW);
+	digitalWrite(this->openClawPin, HIGH);
+	digitalWrite(this->closeClawPin, LOW);
 }
 
 void RobotArm::closeClaw()
 {
-	digitalWrite(openClawPin, LOW);
-	digitalWrite(closeClawPin, HIGH);
+	digitalWrite(this->openClawPin, LOW);
+	digitalWrite(this->closeClawPin, HIGH);
 }
 
 void RobotArm::brakeClaw()
 {
-	digitalWrite(openClawPin, LOW);
-	digitalWrite(closeClawPin, LOW);
+	digitalWrite(this->openClawPin, LOW);
+	digitalWrite(this->closeClawPin, LOW);
 }
 
 void RobotArm::waist(float targetAngle)
