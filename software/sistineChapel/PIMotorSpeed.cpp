@@ -13,7 +13,7 @@ PIMotorSpeed::PIMotorSpeed() : PMotorSpeed()
 	this->integralGain[0] = 0.0;
 	this->integralGain[1] = 0.0;
 	this->integralGain[2] = 0.0;
-	this->integralGain[3] = 0.05;
+	this->integralGain[3] = 0.0;
 	this->integralGain[4] = 0.0;
 
 	for(int i = 0; i < this->numMotors; i++)

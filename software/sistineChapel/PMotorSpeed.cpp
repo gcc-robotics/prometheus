@@ -4,18 +4,10 @@
 
 PMotorSpeed::PMotorSpeed()
 {
-	this->numMotors = 5;
-
-	for(int i = 0; i < this->numMotors; i++)
-	{
-		this->setPoint[i] = 0.0;
-		this->setSetPoint(i, 0);
-	}
-
 	proportionalGain[0] = 0.3;
 	proportionalGain[1] = 0.3;
 	proportionalGain[2] = 0.3;
-	proportionalGain[3] = 0.3;
+	proportionalGain[3] = 1.0;
 	proportionalGain[4] = 0.3;
 
 	min[0] = 0.0;
@@ -29,6 +21,14 @@ PMotorSpeed::PMotorSpeed()
 	max[2] = 359.9;
 	max[3] = 300.0;
 	max[4] = 359.9;
+
+	this->numMotors = 5;
+
+	for(int i = 0; i < this->numMotors; i++)
+	{
+		this->setPoint[i] = (min[i] + max[i]) / 2;
+		this->setSetPoint(i, this->setPoint[i]);
+	}
 }
 
 void PMotorSpeed::setProportionalGain(int jointNumber, double newproportionalgain)
