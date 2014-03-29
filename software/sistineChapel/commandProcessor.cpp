@@ -124,7 +124,7 @@ void CommandProcessor::getJointGains(String command)
 	float IGain = this->arm->getPIMotorSpeed()->getIntegralGain(jointNumber);
 	int newIGain = int(IGain * 100.0);
 
-	float DGain = this->arm->getPIMotorSpeed()->getDerivativeGain(jointNumber);
+	float DGain = 0.0; //this->arm->getPIMotorSpeed()->getDerivativeGain(jointNumber);
 	int newDGain = DGain * 100;
 
 	Serial.println("jointGains " + String(jointNumber) + " " + String(newPGain / 100) + "." + String(newPGain % 100) + " " + String(newIGain / 100) + "." 
@@ -140,7 +140,7 @@ void CommandProcessor::setJointGains(String command)
 
 	this->arm->getPIMotorSpeed()->setProportionalGain(jointNumber, proportionalgain);
 	this->arm->getPIMotorSpeed()->setIntegralGain(jointNumber, integralgain);
-	this->arm->getPIMotorSpeed()->setDerivativeGain(jointNumber, derivativegain);
+	//this->arm->getPIMotorSpeed()->setDerivativeGain(jointNumber, derivativegain);
 }
 
 void CommandProcessor::getJointError(String command)

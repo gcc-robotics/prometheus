@@ -103,38 +103,28 @@ function Joint(data, viewModel)
 	self.IGain = ko.observable(1);
 	self.DGain = ko.observable(1);
 	
-	// Setpoint received from serial
-	self.serialSetPoint = ko.observable((self.setPoint() != 1) ? 1 : 0);
-	self.serialSetPoint.subscribe(function()
-	{
-		self.setPoint(self.serialSetPoint());
-	});
-	
 	// Subscribe to changes in the setpoint so we can send the updates to the 
 	// Arduino using the socket
 	self.setPoint.subscribe(function()
 	{		
 		if(self.viewModel.enabled())
 		{
-			if(self.setPoint() != self.serialSetPoint())
+			var command = ko.toJSON(
 			{
-				var command = ko.toJSON(
-				{
-					command: "setJointAngle",
-					jointNumber: self.jointNumber(), 
-					angle: self.setPoint()
-				});
+				command: "setJointAngle",
+				jointNumber: self.jointNumber(), 
+				angle: self.setPoint()
+			});
 
-				console.log(command);
+			console.log(command);
 
-				try 
-				{
-					self.viewModel.socket.send(command);
-				}
-				catch(exception)
-				{
-					console.log("WebSocket Send Failed: " + exception);
-				}
+			try 
+			{
+				self.viewModel.socket.send(command);
+			}
+			catch(exception)
+			{
+				console.log("WebSocket Send Failed: " + exception);
 			}
 		}
 		else
@@ -341,7 +331,7 @@ function PrometheusViewModel()
 					break;
 				
 				case "jointSetPoint":
-					self.joints()[json.jointNumber].serialSetPoint(json.setPoint);
+					// Removed because it didn't work
 					break;
 				
 				case "jointLimits":

@@ -18,17 +18,6 @@ PIMotorSpeed::PIMotorSpeed() : PMotorSpeed()
 
 	for(int i = 0; i < this->numMotors; i++)
 	{
-		this->DTerm[i] = 0.0;
-	}
-
-	this->derivativeGain[0] = 0.0;
-	this->derivativeGain[1] = 0.0;
-	this->derivativeGain[2] = 0.0;
-	this->derivativeGain[3] = 0.05;
-	this->derivativeGain[4] = 0.0;
-
-	for(int i = 0; i < this->numMotors; i++)
-	{
 		this->previousTime[i] = 0;
 	}
 
@@ -63,9 +52,7 @@ int PIMotorSpeed::calculate(int jointNumber, double currentAngle)
 
 		double inputDifference = this->setPoint[jointNumber] - this->previousSetPoint[jointNumber];
 
-		DTerm[jointNumber] = inputDifference;
-
-		this->motorSpeed[jointNumber] = PMotorSpeed::calculate(jointNumber, currentAngle) + this->ITerm[jointNumber] - this->derivativeGain[jointNumber] * this->DTerm[jointNumber];
+		this->motorSpeed[jointNumber] = PMotorSpeed::calculate(jointNumber, currentAngle) + this->ITerm[jointNumber];
 
 		this->motorSpeed[jointNumber] = (this->motorSpeed[jointNumber] > 100) ? 100 : this->motorSpeed[jointNumber];
 		this->motorSpeed[jointNumber] = (this->motorSpeed[jointNumber] < -100) ? -100 : this->motorSpeed[jointNumber];
@@ -101,21 +88,4 @@ double PIMotorSpeed::getIntegralGain(int jointNumber)
 	double sampleTimeSeconds = ((double)this->sampleTime) / 1000.0;
 
 	return integralGain[jointNumber] / sampleTimeSeconds;
-}
-
-void PIMotorSpeed::setDerivativeGain(int jointNumber, double newderivativegain)
-{
-	jointNumber = constrain(jointNumber, 0, 5);
-	newderivativegain = constrain(newderivativegain, 0.0, 5.0);
-
-	double sampleTimeSeconds = ((double)this->sampleTime) / 1000.0;
-
-	this->derivativeGain[jointNumber] = newderivativegain / sampleTimeSeconds;
-}
-
-double PIMotorSpeed::getDerivativeGain(int jointNumber)
-{
-	double sampleTimeSeconds = ((double)this->sampleTime) / 1000.0;
-
-	return derivativeGain[jointNumber] * sampleTimeSeconds;
 }
