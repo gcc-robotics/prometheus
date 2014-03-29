@@ -39,8 +39,8 @@ void RobotArm::setup()
 	// Encoder offsets
 	this->encoderOffset[0] = 0;
 	this->encoderOffset[1] = 0;
-	this->encoderOffset[2] = 0;
-	this->encoderOffset[3] = 0; // 33
+	this->encoderOffset[2] = 135;
+	this->encoderOffset[3] = 33;
 	this->encoderOffset[4] = 0;
 
 	// Interrupt 
@@ -82,7 +82,7 @@ PIMotorSpeed* RobotArm::getPIMotorSpeed()
 bool RobotArm::moveJointToSetPoint(int jointNumber)
 {
 	// Get the current angle
-	float currentAngle = this->mux.readEncoder(this->encoderNumber[jointNumber]);
+	float currentAngle = this->getJointAngle(jointNumber);
 
 	// Serial.print("Moving Joint: ");
 	// Serial.print(jointNumber);
@@ -104,13 +104,13 @@ void RobotArm::setJointAngle(int jointNumber, float angle)
 	this->motorSpeed.setSetPoint(jointNumber, angle);
 }
 
-int RobotArm::getJointAngle(int jointNumber)
+float RobotArm::getJointAngle(int jointNumber)
 {
 	float encoderOutput = this->mux.readEncoder(this->encoderNumber[jointNumber]) - encoderOffset[jointNumber];
 	
 	while(encoderOutput < 0)
 	{
-		encoderOutput + 360;
+		encoderOutput += 360;
 	}
 	
 	return encoderOutput;

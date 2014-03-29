@@ -12,13 +12,13 @@ PMotorSpeed::PMotorSpeed()
 
 	min[0] = 0.0;
 	min[1] = 0.0;
-	min[2] = 0.0;
+	min[2] = 20.0;
 	min[3] = 20.0;
 	min[4] = 0.0;
 
 	max[0] = 359.9;
 	max[1] = 359.9;
-	max[2] = 359.9;
+	max[2] = 160.0;
 	max[3] = 300.0;
 	max[4] = 359.9;
 
@@ -58,9 +58,9 @@ void PMotorSpeed::setSetPoint(int jointNumber, double setPoint)
 {
 	jointNumber = constrain(jointNumber, 0, 5);
 	
-	if(setPoint < 0.0)
+	while(setPoint < 0.0)
 	{
-		setPoint = setPoint * -1.0;
+		setPoint += 360;
 	}
 
 	setPoint = fmod(setPoint, 360.0);

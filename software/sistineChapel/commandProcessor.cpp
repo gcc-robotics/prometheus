@@ -1,5 +1,18 @@
 #include "commandProcessor.h"
 
+String floatToString(float input)
+{
+	int first = int(input);
+	String result = String(first);
+
+	input -= first;
+	input *= 1000;
+
+	result += "." + String(int(input));
+
+	return result;
+}
+
 long int lastTime = 0;
 
 CommandProcessor::CommandProcessor()
@@ -60,25 +73,27 @@ void CommandProcessor::loop()
 void CommandProcessor::armStatus()
 {
 	float error0 = this->arm->getPIMotorSpeed()->getAngleError(0, this->arm->getJointAngle(0));
-	int newerror0 = int(error0 * 100);
 
 	float error1 = this->arm->getPIMotorSpeed()->getAngleError(1, this->arm->getJointAngle(1));
-	int newerror1 = int(error1 * 100);
 
 	float error2 = this->arm->getPIMotorSpeed()->getAngleError(2, this->arm->getJointAngle(2));
-	int newerror2 = int(error2 * 100);
 
 	float error3 = this->arm->getPIMotorSpeed()->getAngleError(3, this->arm->getJointAngle(3));
-	int newerror3 = int(error3 * 100);
 
 	float error4 = this->arm->getPIMotorSpeed()->getAngleError(4, this->arm->getJointAngle(4));
-	int newerror4 = int(error4 * 100);
 
 
-	Serial.println("armStatus " + String(this->arm->getJointAngle(0)) + " " + String(this->arm->getJointAngle(1)) + " " + String(this->arm->getJointAngle(2)) + " " 
-		+ String(this->arm->getJointAngle(3)) + " " + String(this->arm->getJointAngle(4)) + " " + String(newerror0 / 100) + "." + String(newerror0 % 100) + " "
-		+ String(newerror1 / 100) + "." + String(newerror1 % 100) + " " + String(newerror2 / 100) + "." + String(newerror2 % 100) + " " + String(newerror3 / 100) 
-		+ "." + String(newerror3 % 100) + " " + String(newerror4 / 100) + "." + String(newerror4 % 100));
+	Serial.println("armStatus " + floatToString(this->arm->getJointAngle(0)) 
+	               + " " + floatToString(this->arm->getJointAngle(1)) + " " 
+	               + floatToString(this->arm->getJointAngle(2)) + " " 
+	               + floatToString(this->arm->getJointAngle(3)) + " " 
+	               + floatToString(this->arm->getJointAngle(4)) + " " 
+	               + floatToString(error0) 
+	               + " " + floatToString(error1)
+	               + " " + floatToString(error2)
+	               + " " + floatToString(error3)
+	               + " " + floatToString(error4));
+	
 }
 
 // -----------------------------------------------

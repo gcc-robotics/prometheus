@@ -63,9 +63,9 @@ class RobotArm
 
 		/* Gets the current angle value for provided joint
 		 * input jointNumber = 0 to 4
-		 * return int between 0 to 359
+		 * return float between 0 to 359
 		 */
-		int getJointAngle(int jointNumber);
+		float getJointAngle(int jointNumber);
 
 		/* Gets the minimum angle value for provided joint to limit the movements
 		 * input jointNumber = 0 to 4

@@ -51,3 +51,14 @@ void globalInterruptResponder()
 {
 	arm.interruptResponder();
 }
+
+float stringToFloat(String input)
+{
+	int dotPosition = input.indexOf(".");
+	int decimalPlaces = input.length() - (dotPosition + 1);
+
+	int first = input.substring(0, dotPosition).toInt();
+	int second = input.substring(dotPosition + 1).toInt();
+
+	return first + (second / pow(10, decimalPlaces));
+}
