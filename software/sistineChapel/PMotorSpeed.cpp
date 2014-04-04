@@ -4,20 +4,20 @@
 
 PMotorSpeed::PMotorSpeed()
 {
-	proportionalGain[0] = 0.3;
-	proportionalGain[1] = 0.3;
-	proportionalGain[2] = 0.3;
+	proportionalGain[0] = 1.0;
+	proportionalGain[1] = 1.0;
+	proportionalGain[2] = 1.0;
 	proportionalGain[3] = 1.0;
-	proportionalGain[4] = 0.3;
+	proportionalGain[4] = 1.0;
 
-	min[0] = 0.0;
-	min[1] = 0.0;
+	min[0] = 20.0;
+	min[1] = 20.0;
 	min[2] = 20.0;
 	min[3] = 20.0;
 	min[4] = 0.0;
 
-	max[0] = 359.9;
-	max[1] = 359.9;
+	max[0] = 340.0;
+	max[1] = 160.0;
 	max[2] = 160.0;
 	max[3] = 300.0;
 	max[4] = 359.9;
