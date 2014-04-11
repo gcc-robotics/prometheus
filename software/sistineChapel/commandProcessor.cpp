@@ -8,6 +8,11 @@ String floatToString(float input)
 	input -= first;
 	input *= 1000;
 
+	if(input < 0)
+	{
+		input *= -1;
+	}
+
 	result += "." + String(int(input));
 
 	return result;
@@ -73,13 +78,9 @@ void CommandProcessor::loop()
 void CommandProcessor::armStatus()
 {
 	float error0 = this->arm->getPIMotorSpeed()->getAngleError(0, this->arm->getJointAngle(0));
-
 	float error1 = this->arm->getPIMotorSpeed()->getAngleError(1, this->arm->getJointAngle(1));
-
 	float error2 = this->arm->getPIMotorSpeed()->getAngleError(2, this->arm->getJointAngle(2));
-
 	float error3 = this->arm->getPIMotorSpeed()->getAngleError(3, this->arm->getJointAngle(3));
-
 	float error4 = this->arm->getPIMotorSpeed()->getAngleError(4, this->arm->getJointAngle(4));
 
 
