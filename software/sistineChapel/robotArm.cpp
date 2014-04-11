@@ -38,7 +38,7 @@ void RobotArm::setup()
 
 	// Encoder offsets
 	this->encoderOffset[0] = -45;
-	this->encoderOffset[1] = 41.0;
+	this->encoderOffset[1] = 35.5;
 	this->encoderOffset[2] = 135.0;
 	this->encoderOffset[3] = 33.0;
 	this->encoderOffset[4] = 0;

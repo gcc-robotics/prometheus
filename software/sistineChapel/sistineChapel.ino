@@ -45,6 +45,9 @@ void loop()
 	{
 		debug.loop();
 	}
+
+	/*int pin = 1;
+	Serial.println(analogRead(pin));*/
 }
 
 void globalInterruptResponder()
