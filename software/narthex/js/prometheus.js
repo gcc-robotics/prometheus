@@ -300,7 +300,7 @@ function PrometheusViewModel()
 		// because we now have to figure out which response belongs to which 
 		// command.
 
-		console.log("Data from socket: " + data);
+		//console.log("Data from socket: " + data);
 
 		json = null;
 
@@ -331,12 +331,22 @@ function PrometheusViewModel()
 					break;
 				
 				case "jointSetPoint":
-					// Removed because it didn't work
+					// Removed because it caused the setPoint to jump around
 					break;
 				
 				case "jointLimits":
-					self.joints()[json.jointNumber].min(json.min);
-					self.joints()[json.jointNumber].max(json.max);
+					json.min = Number(json.min);
+					json.max = Number(json.max);
+
+					if(!isNaN(json.min))
+					{
+						self.joints()[json.jointNumber].min(json.min);
+					}
+
+					if(!isNaN(json.max))
+					{
+						self.joints()[json.jointNumber].max(json.max);
+					}
 					break;
 				
 				case "jointGains":

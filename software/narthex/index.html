@@ -103,7 +103,7 @@
 		<div class="large-6 columns">
 			<fieldset class="panel">
 				<legend><h3 data-bind="text: joint.title"></h3></legend>
-				<input type="range" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joint.setPoint, disable: !$parent.enabled(), max: joint.max, min: joint.min, attr: {'id': joint.inputId}" />
+				<input type="range" step="1" class="large-12 columns" data-bind="value: joint.setPoint, disable: !$parent.enabled(), max: joint.max(), min: joint.min(), attr: {'id': joint.inputId}" />
 				<div class="row">
 					<div class="large-3 columns"><span data-bind="text: joint.min">0</span>&deg;</div>
 					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joint.setPointRounded">180</strong>&deg;</div>
@@ -134,7 +134,7 @@
 		<div class="large-4 columns">
 			<fieldset class="panel">
 				<legend><h3 data-bind="text: joint.title"></h3></legend>
-				<input type="range" value="180" min="0" max="359" step="1" class="large-12 columns" data-bind="value: joint.setPoint, disable: !$parent.enabled(), max: joint.max, min: joint.min, attr: {'id': joint.inputId}" />
+				<input type="range" step="1" class="large-12 columns" data-bind="value: joint.setPoint, disable: !$parent.enabled(), max: joint.max(), min: joint.min(), attr: {'id': joint.inputId}" />
 				<div class="row">
 					<div class="large-3 columns"><span data-bind="text: joint.min">0</span>&deg;</div>
 					<div class="large-6 columns" style="text-align: center;"><strong data-bind="text: joint.setPointRounded">180</strong>&deg;</div>
