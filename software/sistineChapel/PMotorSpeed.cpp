@@ -11,14 +11,14 @@ PMotorSpeed::PMotorSpeed()
 	proportionalGain[4] = 1.0;
 
 	min[0] = 20.0;
-	min[1] = 20.0;
-	min[2] = 20.0;
+	min[1] = 3.0;
+	min[2] = 0.0;
 	min[3] = 20.0;
 	min[4] = 0.0;
 
 	max[0] = 340.0;
 	max[1] = 160.0;
-	max[2] = 160.0;
+	max[2] = 135.0;
 	max[3] = 300.0;
 	max[4] = 359.9;
 

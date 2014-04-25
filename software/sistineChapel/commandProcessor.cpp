@@ -88,12 +88,13 @@ void CommandProcessor::armStatus()
 	               + " " + floatToString(this->arm->getJointAngle(1)) + " " 
 	               + floatToString(this->arm->getJointAngle(2)) + " " 
 	               + floatToString(this->arm->getJointAngle(3)) + " " 
-	               + floatToString(this->arm->getJointAngle(4)) + " " 
+	               + floatToString(this->arm->getJointAngle(4))
+	               + " 0.0 0.0 0.0 0.0 0.0"); /*+ " " 
 	               + floatToString(error0) 
 	               + " " + floatToString(error1)
 	               + " " + floatToString(error2)
 	               + " " + floatToString(error3)
-	               + " " + floatToString(error4));
+	               + " " + floatToString(error4));*/
 	
 }
 

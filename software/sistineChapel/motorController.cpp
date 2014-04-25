@@ -55,11 +55,11 @@ void MotorController::reverse(int motorNum)
 
 void MotorController::speed(int motorNumber, int speed)
 {
-	// Temporary speed limit for elbow
-	if(motorNumber == 3)
+	// Temporary speed limit for elbow needs fixing..........................................................................................................................................................................
+	/*if(motorNumber == 3)
 	{
 		speed = speed / 4;
-	}
+	}*/
 
 	if(speed > 0)
 	{
