@@ -3,28 +3,46 @@ Prometheus
 
 The Prometheus is a robotic arm project created by the [Glendale Community College Robotics Academy][0].
 
-This repository contains the software, electronics schematics, and mechanical models for the Prometheus.
+This repository contains the software, electronics schematics, and mechanical models for the Prometheus robotic arm.
 
 Prometheus Startup Procedure
 ----------------------------
-1. Make sure the hardware and electronics are hooked up connected correctly.
+1. Make sure the hardware and electronics are connected correctly.
 2. Power up the Raspberry Pi, Router, and only the 5V rail for the electronics board.
-   __Do not turn on the 12V rail!__
+   __Do not turn on the 12V rail! This will cause the arm to move to it's default position which could cause rapid movement and the arm could impact something.__
 3. Connect a computer to the router either by ethernet or WiFi. The WiFi info is on the router.
-4. SSH into the RaspberryPi. On Linux or OSX you can use the following command:
+4. SSH into the RaspberryPi. On Linux or OSX open the terminal and run the following command:
 
 		ssh prometheus@10.33.0.2
    
-   The password is on the RaspberryPi.
+   The password is on the case of the RaspberryPi. For Windows you will need to install Putty in order to SSH into the RaspberryPi. Google it.
 
 5. Once you are connected to the RaspberryPi run the following commands:
 
 		cd /home/prometheus/prometheus/software/narthex/
         sudo python server.py
+    
+    The second command will ask you for a password. Type in the same one as before.
 
-6. Now on a computer, tablet, or phone connected to the Prometheus network, open a browser and go to:
+6. Now on a computer (it can be the same one), tablet, or phone connected to the Prometheus network, open a browser and go to:
 
 		10.33.0.2
+	
+	 This will open up the Prometheus Remote Control Interface.
+
+7. Now click __Settings__ in the top right corner of the screen and then turn on the __Command Console__. Click the __X__ in the top right corner to close the Settings Screen.
+
+8. Now go to the bottom of the page and tun the following commands:
+
+        getJointLimits 0
+        getJointLimits 1
+        getJointLimits 2
+        getJointLimits 3
+        getJointLimits 4
+
+9. Now use the setpoint sliders to set all the joint to a position where the arm will not hit anything when it is turned on.
+
+10. Finaly, once you are confident that the setpoints are good turn on the 12V rail. The arm will now move to the setpoints you specified and you will be able to control it using the remote control interface.
 
 Sistine Chapel - Arduino Software
 ---------------------------------
@@ -36,31 +54,16 @@ The __sistineChapel__ subdirectory contains the Arduino software for controlling
 To compile and upload to the Arduino use the free [Arduino IDE][1]. Once you have installed the IDE the following steps will let you upload and test the Arduino software.
 
 * Start Arduino IDE
-* Select Board -> Arduino Pro Mini 5V
-* Select Processor
+* Select Tools -> Board -> Arduino Pro Mini 5V W/ ATmega328
 * Open [sistineChapel/sistineChapel.ino][2] 
 * File -> Upload
-* Open Serial Monitor if you have the debugger enabled
 
 Narthex - Raspberry Pi Software
 -------------------------------
 
 The __narthex__ subdirectory contains the software to be run on the Raspberry Pi. 
 
-The software runs a simple web server to serve a static web page with controls for Prometheus enabling remote control.
-
-### Links
-
-* Connect RPI and Arduio using RPI GPIO http://blog.oscarliang.net/raspberry-pi-and-arduino-connected-serial-gpio/
-* Connect RPI and Arduio using USB http://blog.oscarliang.net/connect-raspberry-pi-and-arduino-usb-cable/
-* RPI to Arduino Serial Communication using Python http://www.raspberrypi.org/phpBB3/viewtopic.php?f=32&t=60746
-* RPI to Arduino Serial Communication using C++ http://www.raspberrypi.org/phpBB3/viewtopic.php?t=14150&p=153257
-* 222MB Raspbian Image http://www.raspbian.org/HexxehImages
-* 118MB Raspbian Image (Seems better) http://www.linuxsystems.it/raspbian-wheezy-armhf-raspberry-pi-minimal-image/
-* Ask Ubuntu Question about GParted (should be usable for partition expansion / growing) http://askubuntu.com/questions/51272/how-do-i-repartition-with-gparted
-* Simple python webserver with ajax support on SO http://stackoverflow.com/questions/336866/how-to-implement-a-minimal-server-for-ajax-in-python
-* WebGL STL Rendering http://tonylukasavage.com/blog/2013/04/10/web-based-stl-viewing-three-dot-js/
-* Knockout JS, library used for data binding in narthex http://knockoutjs.com/
+The software runs a simple web server to serve a static web page with controls for Prometheus enabling remote control. The python code transfers commands between the Arduino and the Javascript running in the open webpage.
 
 [0]: http://www.robotics.glendale.edu
 [1]: http://arduino.cc/en/Main/Software
