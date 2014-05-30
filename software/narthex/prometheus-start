@@ -4,4 +4,4 @@
 # http://raspberrypi.stackexchange.com/questions/8734/execute-script-on-start-up
 # Script may not run as root, /etc/rc.local seems like it might run as root
 
-python /home/prometheus/prometheus/narthex/server.py
+/usr/bin/python /home/prometheus/prometheus/narthex/server.py

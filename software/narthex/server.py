@@ -1,14 +1,13 @@
 from twisted.internet import reactor, task
 from txws import WebSocketFactory
 
-import BaseHTTPServer
-import SimpleHTTPServer
+import BaseHTTPServer, SimpleHTTPServer, os
 
 from PrometheusSerial import PrometheusSerial
 from PrometheusSocket import PrometheusSocketFactory, PrometheusSocket
 
 # Serial
-serial = PrometheusSerial()
+serial = PrometheusSerial(reactor)
 
 serialTask = task.LoopingCall(serial.proccessData)
 serialTask.start(0.1)
@@ -17,6 +16,9 @@ serialTask.start(0.1)
 IP = ""
 PORT = 80
 server_address = (IP, PORT)
+
+os.chdir("/home/prometheus/prometheus/narthex/")
+
 server = BaseHTTPServer.HTTPServer(server_address, SimpleHTTPServer.SimpleHTTPRequestHandler)
 server.timeout = 0.1
 
