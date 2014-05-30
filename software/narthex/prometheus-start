@@ -1,0 +1,7 @@
+#!/bin/sh
+# Prometheus startup script
+# Instructions on how to enable can be found at:
+# http://raspberrypi.stackexchange.com/questions/8734/execute-script-on-start-up
+# Script may not run as root, /etc/rc.local seems like it might run as root
+
+python /home/prometheus/prometheus/narthex/server.py
