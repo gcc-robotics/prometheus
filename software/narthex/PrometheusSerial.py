@@ -9,10 +9,12 @@ class PrometheusSerial:
 	connection = None
 
 	socket = None
+	reactor = None
 
-	def __init__(self):
+	def __init__(self, reactor):
 		print "PrometheusSerial: Starting serial communication"
 
+		self.reactor = reactor
 		self.init()
 	
 	def init(self):
@@ -29,7 +31,8 @@ class PrometheusSerial:
 				self.portNumber = 0
 				self.connected = False
 
-				print "PrometheusSerial: Failed to establish communication"
+				print "PrometheusSerial: Failed to establish communication, retrying in 10 seconds"
+				self.reactor.callLater(10, self.init)
 
 			else:
 				self.init()
